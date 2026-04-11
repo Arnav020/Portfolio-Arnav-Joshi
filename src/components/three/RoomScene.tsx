@@ -90,72 +90,65 @@ function DesktopScreenMaterial({ isZoomedIn }: { isZoomedIn: boolean }) {
     canvas.height = 960
     const ctx = canvas.getContext('2d')
     if (ctx) {
-      // Background gradient
-      const grad = ctx.createLinearGradient(0, 0, 1600, 960)
-      grad.addColorStop(0, '#0f172a')
-      grad.addColorStop(0.4, '#1e1b4b')
-      grad.addColorStop(1, '#09090b')
-      ctx.fillStyle = grad
+      // Base Blue-Onyx Atmosphere
+      ctx.fillStyle = '#02040a'
       ctx.fillRect(0, 0, 1600, 960)
 
-      // Decorative Top Right Glow
-      const glow1 = ctx.createRadialGradient(1400, -200, 50, 1400, -200, 800)
-      glow1.addColorStop(0, 'rgba(79,70,229,0.3)')
-      glow1.addColorStop(1, 'transparent')
-      ctx.fillStyle = glow1
+      // Sapphire Radial Highlight
+      const rad = ctx.createRadialGradient(240, 150, 0, 240, 150, 800)
+      rad.addColorStop(0, 'hsla(230, 60%, 15%, 1)')
+      rad.addColorStop(1, 'transparent')
+      ctx.fillStyle = rad
       ctx.fillRect(0, 0, 1600, 960)
+
+      // Mock Code-Rain Substratum (Top-Weighted)
+      ctx.font = '14px monospace'
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'
+      for (let i = 0; i < 15; i++) {
+        const y = 80 + i * 25
+        const opacity = 1 - (i / 15)
+        ctx.globalAlpha = opacity * 0.4
+        ctx.fillText('class Trainer: def __init__(self, model): model.fit(x, y)', 80, y)
+        ctx.fillText('func main() { router := gin.Default(); router.Run() }', 600, y)
+        ctx.fillText('export function App() { return <main className="p-4">', 1100, y)
+      }
+      ctx.globalAlpha = 1.0
 
       // Top Menu Bar
-      ctx.fillStyle = 'rgba(0,0,0,0.5)'
+      ctx.fillStyle = 'rgba(255,255,255,0.03)'
       ctx.fillRect(0, 0, 1600, 50)
-      ctx.fillStyle = 'rgba(255,255,255,0.2)'
-      ctx.fillRect(40, 20, 160, 10)
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)'
+      ctx.beginPath(); ctx.moveTo(0, 50); ctx.lineTo(1600, 50); ctx.stroke()
 
-      // Taskbar Bottom
-      ctx.fillStyle = 'rgba(0,0,0,0.5)'
-      ctx.beginPath()
-      ctx.roundRect(1600/2 - 200, 960 - 100, 400, 70, 20)
-      ctx.fill()
-
-      const iconColors = ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b']
+      // Right-side Widgets (Sapphire-Onyx theme)
+      // Clock Widget
+      ctx.fillStyle = '#0a0f24'
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.2)'
+      ctx.lineWidth = 2
+      ctx.beginPath(); ctx.roundRect(1600 - 450, 100, 380, 210, 40); ctx.fill(); ctx.stroke()
       
-      // Side Folder Icons
-      for (let i = 0; i < 5; i++) {
-        const yOffset = 120 + i * 140
-        ctx.fillStyle = `${iconColors[i]}44`
-        ctx.beginPath()
-        ctx.roundRect(60, yOffset, 80, 80, 16)
-        ctx.fill()
-        
-        ctx.fillStyle = `${iconColors[i]}`
-        ctx.fillRect(80, yOffset + 25, 40, 30) // faux icon block
-        
-        ctx.fillStyle = 'rgba(255,255,255,0.4)'
-        ctx.beginPath()
-        ctx.roundRect(50, yOffset + 95, 100, 12, 6)
-        ctx.fill()
-      }
+      const dotGrad = ctx.createRadialGradient(1600 - 120, 140, 0, 1600 - 120, 140, 10)
+      dotGrad.addColorStop(0, '#60a5fa'); dotGrad.addColorStop(1, 'transparent')
+      ctx.fillStyle = dotGrad
+      ctx.beginPath(); ctx.arc(1600 - 120, 140, 6, 0, Math.PI * 2); ctx.fill()
+      
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'
+      ctx.font = 'light 90px sans-serif'
+      ctx.fillText('18:38', 1600 - 400, 220)
 
-      // Desktop Widgets Right
-      ctx.fillStyle = 'rgba(0,0,0,0.3)'
-      ctx.beginPath()
-      ctx.roundRect(1600 - 450, 120, 380, 240, 30)
-      ctx.fill()
-      ctx.fillStyle = 'rgba(255,255,255,0.8)'
-      ctx.font = 'bold 80px sans-serif'
-      ctx.fillText('16:18', 1600 - 410, 220)
-
-      ctx.fillStyle = 'rgba(0,0,0,0.3)'
-      ctx.beginPath()
-      ctx.roundRect(1600 - 450, 390, 380, 240, 30)
-      ctx.fill()
-      const pGlow = ctx.createLinearGradient(1600 - 410, 430, 1600 - 290, 550)
-      pGlow.addColorStop(0, '#6366f1')
-      pGlow.addColorStop(1, '#a855f7')
-      ctx.fillStyle = pGlow
-      ctx.beginPath()
-      ctx.roundRect(1600 - 410, 430, 120, 120, 24)
-      ctx.fill()
+      // Music Widget
+      ctx.fillStyle = '#0a0f24'
+      ctx.beginPath(); ctx.roundRect(1600 - 450, 340, 380, 210, 40); ctx.fill(); ctx.stroke()
+      
+      // Album Art
+      const artGrad = ctx.createLinearGradient(1600 - 410, 380, 1600 - 320, 470)
+      artGrad.addColorStop(0, '#3b82f6'); artGrad.addColorStop(1, '#4f46e5')
+      ctx.fillStyle = artGrad
+      ctx.beginPath(); ctx.roundRect(1600 - 410, 380, 90, 90, 20); ctx.fill()
+      
+      // Icons and Taskbar Mock
+      ctx.fillStyle = 'rgba(255,255,255,0.05)'
+      ctx.beginPath(); ctx.roundRect(500, 960 - 120, 600, 80, 30); ctx.fill()
     }
     texture.current = new THREE.CanvasTexture(canvas)
     texture.current.colorSpace = THREE.SRGBColorSpace

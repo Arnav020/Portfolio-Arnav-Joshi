@@ -87,7 +87,11 @@ const DraggableWindow = memo(function DraggableWindow({
       className="transform-gpu will-change-[transform,opacity]"
     >
       <div
-        className={`flex flex-col w-full h-full rounded-xl overflow-hidden ${isActive ? 'shadow-[0_20px_40px_rgba(0,0,0,0.6)] border-white/[0.12]' : 'shadow-[0_10px_20px_rgba(0,0,0,0.4)] border-white/[0.05]'} border transition-[background,border,box-shadow] duration-200`}
+        className={`flex flex-col w-full h-full rounded-xl overflow-hidden transition-[background,border,box-shadow] duration-300 ${
+          isActive 
+            ? 'shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8),0_0_0_1px_rgba(59,130,246,0.2)] border-blue-500/30' 
+            : 'shadow-[0_15px_30px_rgba(0,0,0,0.6)] border-white/5'
+        } border`}
         style={{
           background: isActive ? '#0d0d12' : '#08080a',
           boxShadow: isActive
@@ -98,10 +102,11 @@ const DraggableWindow = memo(function DraggableWindow({
       >
         {/* Title bar - Native Drag Control */}
         <div
-          className="flex items-center gap-3 px-4 h-11 flex-shrink-0 cursor-grab active:cursor-grabbing select-none"
+          className={`flex items-center gap-3 px-4 h-11 flex-shrink-0 cursor-grab active:cursor-grabbing select-none transition-colors duration-300 ${
+            isActive ? 'bg-blue-500/[0.06]' : 'bg-white/[0.02]'
+          }`}
           style={{
-            background: 'rgba(255,255,255,0.02)',
-            borderBottom: '1px solid rgba(0,0,0,0.4)',
+            borderBottom: isActive ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(0,0,0,0.4)',
           }}
           onPointerDown={(e) => {
             onFocus()

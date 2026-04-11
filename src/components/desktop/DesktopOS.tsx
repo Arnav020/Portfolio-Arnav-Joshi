@@ -65,6 +65,15 @@ const DESKTOP_FILES = [
   },
 ]
 
+const CODE_SNIPPETS = [
+  `class Trainer:\n  def __init__(self, model, optimizer):\n    self.model = model.to(device)\n    self.optimizer = optimizer\n  \n  def step(self, batch):\n    x, y = batch\n    self.optimizer.zero_grad()\n    loss = self.model(x).loss(y)\n    loss.backward()\n    self.optimizer.step()\n    return loss.item()`,
+  `func StartServer() {\n  lis, err := net.Listen("tcp", port)\n  if err != nil {\n    log.Fatalf("failed to listen: %v", err)\n  }\n  s := grpc.NewServer()\n  pb.RegisterUserServiceServer(s, &server{})\n  if err := s.Serve(lis); err != nil {\n    log.Fatalf("failed to serve: %v", err)\n  }\n}`,
+  `export function useIntersectionObserver(ref, options) {\n  const [entry, setEntry] = useState(null)\n  useEffect(() => {\n    const observer = new IntersectionObserver(([e]) => setEntry(e), options)\n    if (ref.current) observer.observe(ref.current)\n    return () => observer.disconnect()\n  }, [ref, options])\n  return entry\n}`,
+  `export async function POST(req: Request) {\n  const { data } = await req.json()\n  const validated = schema.safeParse(data)\n  if (!validated.success) return Response.json({ error: "Invalid" }, { status: 400 })\n  const result = await db.insert(table).values(validated.data)\n  return Response.json(result)\n}`,
+  `interface WindowState {\n  id: string\n  label: string\n  isOpen: boolean\n  position: { x: number; y: number }\n  size: { width: number; height: number }\n  zIndex: number\n}`,
+  `@app.route("/stream")\ndef stream():\n    def generate():\n        for chunk in agent.run():\n            yield f"data: {chunk}\\n\\n"\n    return Response(generate(), mimetype="text/event-stream")`
+]
+
 export function DesktopOS() {
   const [windows, setWindows] = useState<WindowState[]>([])
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null)
@@ -144,14 +153,35 @@ export function DesktopOS() {
 
   return (
     <div 
-      className="absolute inset-0 overflow-hidden select-none font-sans shadow-[inset_0_0_150px_rgba(0,0,0,0.4)]"
+      className="absolute inset-0 overflow-hidden select-none font-sans shadow-[inset_0_0_150px_rgba(0,0,0,0.5)] transition-all duration-1000"
       style={{
-        backgroundColor: '#050505',
-        backgroundImage: `radial-gradient(circle at 20% 20%, hsla(253, 16%, 10%, 1) 0%, transparent 70%)`,
+        backgroundColor: '#02040a',
+        backgroundImage: `radial-gradient(circle at 15% 15%, hsla(230, 60%, 15%, 1) 0%, transparent 60%)`,
         backgroundSize: '100% 100%',
       }}
       data-windows-open={windows.length > 0}
     >
+      {/* Code substratum — High-Density Top-Weighted Texture */}
+      <div 
+        className="absolute inset-x-0 top-0 h-[60%] pointer-events-none opacity-[0.07] overflow-hidden select-none"
+        style={{
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)',
+        }}
+      >
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-12 p-8 pt-16">
+          {CODE_SNIPPETS.map((code, i) => (
+            <pre key={i} className="font-mono text-[9px] leading-relaxed text-blue-300 whitespace-pre mix-blend-screen opacity-90 filter blur-[0.3px]">
+              {code}
+            </pre>
+          ))}
+          {/* High-density fill for top region */}
+          {CODE_SNIPPETS.slice(0, 3).map((code, i) => (
+            <pre key={`top-${i}`} className="font-mono text-[9px] leading-relaxed text-indigo-400 whitespace-pre mix-blend-screen opacity-40 translate-x-12 translate-y-4">
+              {code}
+            </pre>
+          ))}
+        </div>
+      </div>
       
       {/* Top Menu Bar — Refined macOS look */}
       <div className="absolute top-0 left-0 right-0 h-8 z-50 bg-white/[0.03] backdrop-blur-3xl border-b border-white/[0.05] flex items-center px-5 justify-between text-[11px] text-white/70 shadow-sm">
