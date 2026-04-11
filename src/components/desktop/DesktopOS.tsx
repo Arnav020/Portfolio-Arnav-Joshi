@@ -13,38 +13,55 @@ export const DESKTOP_APPS = [
   {
     id: 'about',
     label: 'about.txt',
-    icon: '👤',
+    icon: 'CircleUser',
     color: '#6366f1',
   },
   {
     id: 'skills',
     label: 'skills/',
-    icon: '⚡',
+    icon: 'Cpu',
     color: '#8b5cf6',
   },
   {
     id: 'projects',
     label: 'projects/',
-    icon: '📁',
+    icon: 'FolderOpen',
     color: '#06b6d4',
   },
   {
     id: 'experience',
     label: 'experience.md',
-    icon: '💼',
+    icon: 'Briefcase',
     color: '#10b981',
   },
   {
     id: 'achievements',
     label: 'awards.json',
-    icon: '🏆',
+    icon: 'Trophy',
     color: '#f59e0b',
   },
   {
     id: 'contact',
     label: 'contact.sh',
-    icon: '✉️',
+    icon: 'Mail',
     color: '#ec4899',
+  },
+]
+
+const DESKTOP_FILES = [
+  {
+    id: 'resume-ml',
+    label: 'Resume_ML.pdf',
+    icon: 'FileText',
+    color: '#ef4444',
+    url: '/resume-ml.pdf',
+  },
+  {
+    id: 'resume-sde',
+    label: 'Resume_SDE.pdf',
+    icon: 'FileText',
+    color: '#3b82f6',
+    url: '/resume-sde.pdf',
   },
 ]
 
@@ -110,7 +127,11 @@ export function DesktopOS() {
       ws.map((w) => (w.id === id ? { ...w, zIndex: newZ, minimised: false } : w))
     )
     setActiveWindowId(id)
-  }, [zCounter])
+  }, [zCounter, windows])
+
+  const handleOpenFile = (url: string) => {
+    window.open(url, '_blank')
+  }
 
   const updateWindow = useCallback(
     (id: string, updates: Partial<WindowState>) => {
@@ -123,25 +144,33 @@ export function DesktopOS() {
 
   return (
     <div 
-      className="absolute inset-0 overflow-hidden select-none bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#09090b] font-sans shadow-[inset_0_0_150px_rgba(0,0,0,0.6)]"
+      className="absolute inset-0 overflow-hidden select-none font-sans shadow-[inset_0_0_150px_rgba(0,0,0,0.4)]"
+      style={{
+        backgroundColor: '#050505',
+        backgroundImage: `radial-gradient(circle at 20% 20%, hsla(253, 16%, 10%, 1) 0%, transparent 70%)`,
+        backgroundSize: '100% 100%',
+      }}
       data-windows-open={windows.length > 0}
     >
       
-      {/* Top Menu Bar — Frosted Glass Look */}
-      <div className="absolute top-0 left-0 right-0 h-9 z-50 bg-black/40 backdrop-blur-2xl border-b border-white/5 flex items-center px-6 justify-between text-xs text-white/80 shadow-md">
-        <div className="flex items-center gap-6 font-medium tracking-wide">
-          <div className="w-5 h-5 bg-white/10 rounded flex items-center justify-center text-[10px] font-bold shadow-inner border border-white/10 text-white/90">W</div>
-          <span className="cursor-pointer hover:text-white transition-colors cursor-default">Portfolio.</span>
-          <span className="cursor-pointer hover:text-white transition-colors cursor-default">File</span>
-          <span className="cursor-pointer hover:text-white transition-colors cursor-default">View</span>
-          <span className="cursor-pointer hover:text-white transition-colors cursor-default">Go</span>
+      {/* Top Menu Bar — Refined macOS look */}
+      <div className="absolute top-0 left-0 right-0 h-8 z-50 bg-white/[0.03] backdrop-blur-3xl border-b border-white/[0.05] flex items-center px-5 justify-between text-[11px] text-white/70 shadow-sm">
+        <div className="flex items-center gap-5 font-semibold tracking-tight">
+          <div className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] text-white overflow-hidden">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full opacity-90"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM12 20c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" /></svg>
+          </div>
+          <span className="cursor-default font-bold text-white/90">Portfolio</span>
+          <span className="cursor-default hover:text-white transition-colors">File</span>
+          <span className="cursor-default hover:text-white transition-colors">Edit</span>
+          <span className="cursor-default hover:text-white transition-colors">View</span>
+          <span className="cursor-default hover:text-white transition-colors">Window</span>
         </div>
-        <div className="flex items-center gap-4 text-[11px] font-mono font-medium opacity-80">
-          <span suppressHydrationWarning>{new Date().toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', hour: 'numeric', minute: '2-digit' })}</span>
+        <div className="flex items-center gap-4 font-medium opacity-80">
+          <span suppressHydrationWarning>{new Date().toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', hour: 'numeric', minute: '2-digit' }).replace(',', '')}</span>
         </div>
       </div>
 
-      <div className="absolute top-20 left-10 grid grid-cols-1 gap-8 z-40">
+      <div className="absolute top-20 left-12 grid grid-cols-1 gap-4 z-40">
         {DESKTOP_APPS.map((app, i) => (
           <DesktopIcon
             key={app.id}
@@ -153,16 +182,29 @@ export function DesktopOS() {
         ))}
       </div>
 
+      {/* Desktop Files (Resumes) — Placed left of widgets */}
+      <div className="absolute top-20 right-[350px] grid grid-cols-1 gap-4 z-40 hidden md:grid">
+        {DESKTOP_FILES.map((file, i) => (
+          <DesktopIcon
+            key={file.id}
+            app={file}
+            isOpen={false}
+            onOpen={() => handleOpenFile(file.url)}
+            index={i + DESKTOP_APPS.length}
+          />
+        ))}
+      </div>
+
       {/* Widgets Platform Layer — Placed on the right side of the screen */}
       <div className="absolute top-20 right-10 flex flex-col gap-6 z-20 hidden md:flex">
         <ClockWidget />
         <NowPlayingWidget />
       </div>
 
-      {/* Decorative Background Glows (Optimized: No CSS blur, pure GPU radial gradients) */}
-      <div className="absolute top-[-20%] right-[-10%] w-[1000px] h-[1000px] bg-[radial-gradient(circle,_rgba(79,70,229,0.15)_0%,_transparent_60%)] pointer-events-none mix-blend-screen transform-gpu" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[800px] h-[800px] bg-[radial-gradient(circle,_rgba(217,70,239,0.1)_0%,_transparent_60%)] pointer-events-none mix-blend-screen transform-gpu" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] transform-gpu" style={{ backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
+      {/* Optimized Background Atmosphere (Subtle overlay for depth) */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.02),_transparent)]" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(circle, white 0.5px, transparent 0.5px)', backgroundSize: '48px 48px' }} />
 
       {/* Welcome hint — fades out after first interaction */}
       {windows.length === 0 && (

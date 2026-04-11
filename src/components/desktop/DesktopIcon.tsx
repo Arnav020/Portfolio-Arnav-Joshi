@@ -1,7 +1,18 @@
 'use client'
 
+import { memo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { CircleUser, Cpu, FolderOpen, Briefcase, Trophy, Mail, FileText } from 'lucide-react'
+
+const ICON_MAP: Record<string, any> = {
+  CircleUser,
+  Cpu,
+  FolderOpen,
+  Briefcase,
+  Trophy,
+  Mail,
+  FileText,
+}
 
 interface DesktopIconProps {
   app: { id: string; label: string; icon: string; color: string }
@@ -10,9 +21,11 @@ interface DesktopIconProps {
   index: number
 }
 
-export function DesktopIcon({ app, isOpen, onOpen, index }: DesktopIconProps) {
+export const DesktopIcon = memo(function DesktopIcon({ app, isOpen, onOpen, index }: DesktopIconProps) {
   const [clicks, setClicks] = useState(0)
   const [clickTimer, setClickTimer] = useState<ReturnType<typeof setTimeout> | null>(null)
+
+  const IconComponent = ICON_MAP[app.icon] || CircleUser
 
   // Double-click detection
   const handleClick = () => {
@@ -29,35 +42,44 @@ export function DesktopIcon({ app, isOpen, onOpen, index }: DesktopIconProps) {
 
   return (
     <motion.button
-      initial={{ opacity: 0, x: -20, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-      transition={{ delay: index * 0.1 + 0.3, type: 'spring', stiffness: 120, damping: 14 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 + 0.3, type: 'spring', stiffness: 100, damping: 15 }}
       onClick={handleClick}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.95 }}
-      className="flex flex-col items-center gap-3 p-3 rounded-2xl hover:bg-white/10 border border-transparent hover:border-white/20 hover:shadow-2xl hover:backdrop-blur-sm transition-all duration-300 w-[100px] group relative"
+      className="flex flex-col items-center gap-2 group w-[90px] p-1.5 transform-gpu"
     >
-      {/* High-End OS Folder Icon */}
-      <div className="w-16 h-14 relative drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_12px_24px_rgba(0,0,0,0.25)] transition-all">
-        {/* Back flap */}
-        <div className="absolute bottom-0 w-full h-[50px] bg-white rounded-lg shadow-sm overflow-hidden flex items-start justify-center pt-2">
-          <span className="text-2xl drop-shadow-sm opacity-90">{app.icon}</span>
+      <div className="relative w-14 h-14 flex items-center justify-center">
+        {/* Premium Glass Squircle Base with Depth Gradient */}
+        <div className="absolute inset-0 bg-white/[0.04] backdrop-blur-2xl rounded-[15px] border border-white/[0.08] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:bg-white/[0.08]" />
+        
+        {/* Surface Shine Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] to-transparent rounded-[15px] pointer-events-none" />
+
+        {/* Subtle Inner Highlight Border */}
+        <div className="absolute inset-[1px] rounded-[14px] border-t border-white/[0.05] pointer-events-none" />
+
+        {/* Icon with Ambient Glow */}
+        <div 
+          className="z-10 transition-all duration-300 group-hover:scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+          style={{ 
+            color: 'rgba(255,255,255,0.9)',
+            filter: `drop-shadow(0 0 12px ${app.color}20)` 
+          }}
+        >
+          <IconComponent size={26} strokeWidth={1.5} />
         </div>
-        {/* Top Tab */}
-        <div className="absolute top-0 left-1 w-1/3 h-3 bg-white/90 rounded-t-lg" />
         
-        {/* Front flap (frosted acrylic glass) */}
-        <div className="absolute bottom-0 w-full h-[40px] bg-gradient-to-tr from-white/[0.85] to-white/[0.95] backdrop-blur-md rounded-lg border border-white/50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] origin-bottom transform transition-transform duration-300 group-hover:rotate-x-12" />
-        
-        {/* Open Indicator Dot */}
+        {/* Open Indicator (Floating Glass Dot) */}
         {isOpen && (
-          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1)]" />
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)] z-20" />
         )}
       </div>
 
-      <span className="text-white font-medium text-xs tracking-wide drop-shadow-md px-2 py-0.5 rounded backdrop-blur-none group-hover:bg-black/20 transition-colors">
+      <span className="text-white/60 font-medium text-[10px] tracking-tight px-2 py-0.5 rounded-full transition-all group-hover:bg-white/5 group-hover:text-white group-hover:backdrop-blur-sm truncate max-w-full">
         {app.label}
       </span>
     </motion.button>
   )
-}
+})

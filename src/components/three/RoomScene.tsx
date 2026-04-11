@@ -2,7 +2,7 @@
 
 import { useRef, Suspense } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { PerspectiveCamera, Environment, OrbitControls, Text3D, Html } from '@react-three/drei'
+import { PerspectiveCamera, Environment, OrbitControls, Text3D, Html, Center, Float, useFont } from '@react-three/drei'
 import * as THREE from 'three'
 
 // ─── MATERIALS ────────────────────────────────────────────
@@ -16,6 +16,11 @@ const SHELF_COLOR    = '#121215'
 const PLANT_GREEN    = '#1f8b4c'
 const MUG_COLOR      = '#8b5cf6'
 const BOOK_COLORS    = ['#6366f1','#8b5cf6','#06b6d4','#10b981','#3b82f6','#4f46e5']
+
+const FONT_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json'
+
+// Preload the font to prevent flickering and improve load times
+useFont.preload(FONT_URL)
 
 function Floor() {
   return (
@@ -318,16 +323,57 @@ function Bookshelf() {
   )
 }
 
-function NeonSign() {
+function WallSign() {
   return (
-    <group position={[0, 4.2, -5.9]}>
-      {/* Decorative Neon Tube Rect */}
-      <mesh>
-        <boxGeometry args={[4, 0.05, 0.05]} />
-        <meshStandardMaterial color="#6366f1" emissive="#6366f1" emissiveIntensity={4} toneMapped={false} />
-      </mesh>
-      {/* Intense local glow for the sign */}
-      <pointLight color="#8b5cf6" intensity={25} distance={10} position={[0, -0.5, 0.5]} />
+    <group position={[0, 2.3, -5.95]}>
+      <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.2}>
+        <Center top position={[0, 0.4, 0]}>
+          <Text3D
+            font={FONT_URL}
+            size={0.42}
+            height={0.12}
+            curveSegments={12}
+            bevelEnabled
+            bevelThickness={0.02}
+            bevelSize={0.02}
+            bevelOffset={0}
+            bevelSegments={5}
+          >
+            ARNAV JOSHI
+            <meshStandardMaterial 
+              color="#6366f1" 
+              emissive="#6366f1" 
+              emissiveIntensity={8} 
+              toneMapped={false} 
+            />
+          </Text3D>
+        </Center>
+
+        <Center top position={[0, -0.2, 0]}>
+          <Text3D
+            font={FONT_URL}
+            size={0.14}
+            height={0.05}
+            curveSegments={12}
+            bevelEnabled
+            bevelThickness={0.01}
+            bevelSize={0.01}
+            bevelOffset={0}
+            bevelSegments={3}
+          >
+            AI/ML  •  FULL STACK  •  MLOPS
+            <meshStandardMaterial 
+              color="#8b5cf6" 
+              emissive="#8b5cf6" 
+              emissiveIntensity={4} 
+              toneMapped={false} 
+            />
+          </Text3D>
+        </Center>
+      </Float>
+
+      {/* Ambient glow around the sign */}
+      <pointLight color="#8b5cf6" intensity={35} distance={12} position={[0, 0, 0.5]} />
     </group>
   )
 }
@@ -415,18 +461,21 @@ export function RoomScene({ isZoomedIn = false }: { isZoomedIn?: boolean }) {
         />
 
         <CameraRig isZoomedIn={isZoomedIn} />
-        <Lighting />
-        <NeonSign />
-        <Floor />
-        <BackWall />
-        <LeftWall />
-        <Desk />
-        <Monitor isZoomedIn={isZoomedIn} />
-        <Keyboard />
-        <Mouse />
-        <CoffeeMug />
-        <Plant />
-        <Bookshelf />
+        
+        <Suspense fallback={null}>
+          <Lighting />
+          <WallSign />
+          <Floor />
+          <BackWall />
+          <LeftWall />
+          <Desk />
+          <Monitor isZoomedIn={isZoomedIn} />
+          <Keyboard />
+          <Mouse />
+          <CoffeeMug />
+          <Plant />
+          <Bookshelf />
+        </Suspense>
       </Canvas>
     </div>
   )

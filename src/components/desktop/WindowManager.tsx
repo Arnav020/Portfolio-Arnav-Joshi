@@ -1,7 +1,5 @@
-'use client'
-
-import { useRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { memo, useRef } from 'react'
+import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import type { WindowState } from '@/types/desktop'
 import { WindowContent } from './WindowContent'
 
@@ -41,7 +39,7 @@ export function WindowManager({
   )
 }
 
-function DraggableWindow({
+const DraggableWindow = memo(function DraggableWindow({
   win,
   isActive,
   onClose,
@@ -56,56 +54,29 @@ function DraggableWindow({
   onFocus: () => void
   onUpdate: (updates: Partial<WindowState>) => void
 }) {
-  const isDragging = useRef(false)
-  const dragStart = useRef({ mouseX: 0, mouseY: 0, winX: 0, winY: 0 })
-
-  const handleTitleBarMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button')) return
-      e.preventDefault()
-      onFocus()
-      isDragging.current = true
-      dragStart.current = {
-        mouseX: e.clientX,
-        mouseY: e.clientY,
-        winX: win.position.x,
-        winY: win.position.y,
-      }
-
-      const handleMouseMove = (e: MouseEvent) => {
-        if (!isDragging.current) return
-        const dx = e.clientX - dragStart.current.mouseX
-        const dy = e.clientY - dragStart.current.mouseY
-        onUpdate({
-          position: {
-            x: Math.max(0, dragStart.current.winX + dx),
-            y: Math.max(0, dragStart.current.winY + dy),
-          },
-        })
-      }
-
-      const handleMouseUp = () => {
-        isDragging.current = false
-        window.removeEventListener('mousemove', handleMouseMove)
-        window.removeEventListener('mouseup', handleMouseUp)
-      }
-
-      window.addEventListener('mousemove', handleMouseMove)
-      window.addEventListener('mouseup', handleMouseUp)
-    },
-    [win.position, onFocus, onUpdate]
-  )
+  const dragControls = useDragControls()
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.92, y: -10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.88, y: 10 }}
-      transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+      drag
+      dragControls={dragControls}
+      dragListener={false}
+      dragMomentum={false}
+      dragElastic={0}
+      onDragEnd={(_, info) => {
+        onUpdate({
+          position: {
+            x: win.position.x + info.offset.x,
+            y: win.position.y + info.offset.y,
+          },
+        })
+      }}
+      initial={{ opacity: 0, scale: 0.95, y: win.position.y + 20, x: win.position.x }}
+      animate={{ opacity: 1, scale: 1, y: win.position.y, x: win.position.x }}
+      exit={{ opacity: 0, scale: 0.9, y: win.position.y + 30 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 350 }}
       style={{
         position: 'absolute',
-        left: win.position.x,
-        top: win.position.y,
         width: win.size.width,
         height: win.size.height,
         zIndex: win.zIndex,
@@ -113,31 +84,31 @@ function DraggableWindow({
         minHeight: 380,
       }}
       onMouseDown={onFocus}
+      className="transform-gpu will-change-[transform,opacity]"
     >
       <div
-        className={`flex flex-col w-full h-full rounded-xl overflow-hidden transition-shadow duration-300 ${isActive ? 'shadow-[0_40px_80px_rgba(0,0,0,0.6)]' : 'shadow-[0_20px_40px_rgba(0,0,0,0.4)]'}`}
+        className={`flex flex-col w-full h-full rounded-xl overflow-hidden ${isActive ? 'shadow-[0_20px_40px_rgba(0,0,0,0.6)] border-white/[0.12]' : 'shadow-[0_10px_20px_rgba(0,0,0,0.4)] border-white/[0.05]'} border transition-[background,border,box-shadow] duration-200`}
         style={{
-          background: 'rgba(15, 15, 18, 0.85)',
-          backdropFilter: 'blur(40px) saturate(150%)',
-          border: isActive
-            ? `1px solid rgba(255,255,255,0.15)`
-            : '1px solid rgba(255,255,255,0.06)',
+          background: isActive ? '#0d0d12' : '#08080a',
           boxShadow: isActive
-            ? `0 0 0 1px rgba(255,255,255,0.05) inset, 0 0 0 2px ${win.color}40`
-            : '0 0 0 1px rgba(255,255,255,0.02) inset',
+            ? `0 0 0 1px rgba(255,255,255,0.02) inset`
+            : 'none',
+          isolation: 'isolate',
         }}
       >
-        {/* Title bar - Premium Obsidian Styling */}
+        {/* Title bar - Native Drag Control */}
         <div
-          className="flex items-center gap-3 px-4 h-11 flex-shrink-0 cursor-move select-none"
+          className="flex items-center gap-3 px-4 h-11 flex-shrink-0 cursor-grab active:cursor-grabbing select-none"
           style={{
-            background: 'rgba(255,255,255,0.03)',
-            borderBottom: '1px solid rgba(0,0,0,0.5)',
-            boxShadow: '0 1px 0 rgba(255,255,255,0.05) inset'
+            background: 'rgba(255,255,255,0.02)',
+            borderBottom: '1px solid rgba(0,0,0,0.4)',
           }}
-          onMouseDown={handleTitleBarMouseDown}
+          onPointerDown={(e) => {
+            onFocus()
+            dragControls.start(e)
+          }}
         >
-          {/* Traffic lights (Sleek macOS inspired) */}
+          {/* Traffic lights */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={onClose}
@@ -153,25 +124,25 @@ function DraggableWindow({
             </button>
             <div className="w-3 h-3 rounded-full bg-green-500/40 cursor-default" />
           </div>
-
+ 
           {/* Window title */}
           <div className="flex-1 flex items-center justify-center gap-2">
-            <span className="text-sm opacity-80 drop-shadow-sm">{win.icon}</span>
-            <span className="text-xs text-white/50 font-semibold tracking-wide drop-shadow-md">{win.title}</span>
+            <span className="text-sm opacity-80">{win.icon}</span>
+            <span className="text-xs text-white/50 font-bold tracking-tight uppercase">{win.title}</span>
           </div>
-
-          {/* Color accent line indicator */}
+ 
+          {/* Color accent */}
           <div
-            className="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)] border border-white/20"
+            className="w-2 h-2 rounded-full border border-white/20"
             style={{ backgroundColor: win.color }}
           />
         </div>
-
-        {/* Window content area */}
-        <div className="flex-1 overflow-auto">
+ 
+        {/* Window content area - High Performance Scroll */}
+        <div className="flex-1 min-h-0 bg-black/10 custom-scrollbar translate-z-0">
           <WindowContent id={win.id} />
         </div>
       </div>
     </motion.div>
   )
-}
+})
