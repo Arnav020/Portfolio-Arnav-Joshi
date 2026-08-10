@@ -30,7 +30,8 @@ export function useSpineNavigation() {
 
   let activeIndex = spineChapter
   if (trailingActive === 'skills') activeIndex = 4
-  else if (trailingActive === 'achievements' || trailingActive === 'contact') activeIndex = 5
+  else if (trailingActive === 'achievements') activeIndex = 5
+  else if (trailingActive === 'contact') activeIndex = 6
 
   const gotoChapter = useCallback((chapter: number) => {
     window.dispatchEvent(new CustomEvent<SpineChapterDetail>(SPINE_GOTO_EVENT, { detail: { chapter } }))

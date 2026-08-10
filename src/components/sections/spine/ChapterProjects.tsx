@@ -30,25 +30,23 @@ export function ProjectsLeft() {
 
 export function ProjectsRight() {
   return (
-    <ul className="max-w-md divide-y divide-border-strong">
+    <ul className="flex max-w-lg flex-col divide-y divide-border-strong">
       {FEATURED.map((p, i) => (
         <li key={p.slug}>
-          <Link href={`/work/${p.slug}`} className="group block py-6 first:pt-0 last:pb-0">
+          <Link href={`/work/${p.slug}`} className="group block py-9 first:pt-0 last:pb-0">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-baseline gap-3">
                 <span className="font-mono text-sm font-semibold text-accent">{String(i + 1).padStart(2, '0')}</span>
-                <h3 className="font-serif text-2xl leading-[1.15] text-foreground-strong">{p.title}</h3>
+                <h3 className="font-serif text-[clamp(1.5rem,2.2vw,1.875rem)] leading-[1.15] text-foreground-strong">{p.title}</h3>
               </div>
               <ArrowRight className="mt-2 h-4 w-4 flex-shrink-0 -translate-x-0.5 text-accent opacity-0 transition-[transform,opacity] duration-150 ease-[var(--ease-out)] group-hover:translate-x-0 group-hover:opacity-100" />
             </div>
-            <p className="mt-2.5 pl-[2.35rem] text-sm leading-relaxed text-muted-foreground">{p.description}</p>
-            <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 pl-[2.35rem]">
+            <p className="mt-2 flex flex-wrap gap-x-2.5 gap-y-1 pl-[2.35rem] font-mono text-[0.6875rem] font-semibold tracking-[0.12em] text-accent/80 uppercase">
               {p.techStack.slice(0, 3).map((t) => (
-                <span key={t} className="text-xs font-medium text-muted-foreground/80">
-                  {t}
-                </span>
+                <span key={t}>{t}</span>
               ))}
             </p>
+            <p className="mt-3 pl-[2.35rem] text-sm leading-relaxed text-muted-foreground">{p.description}</p>
           </Link>
         </li>
       ))}

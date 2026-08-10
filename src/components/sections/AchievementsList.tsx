@@ -18,23 +18,21 @@ export function AchievementsList() {
       <Container>
         <SectionHeading entry={6} label="Achievements" title="Waypoints collected along the way" />
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-x-10 gap-y-8 md:grid-cols-2">
           {achievements.map((a, i) => {
             const Icon = ICONS[a.icon ?? 'star'] ?? Star
             return (
               <ScrollReveal
                 key={a.title}
                 delay={i * 40}
-                className="group flex gap-4 rounded-xl border border-border bg-surface/50 p-5 backdrop-blur-sm transition-colors duration-200 ease-[var(--ease-out)] hover:border-border-strong hover:bg-surface/80"
+                className="border-l-2 border-accent/70 py-1 pl-5 transition-colors duration-200 ease-[var(--ease-out)] hover:border-accent"
               >
-                <Icon className="mt-1 h-4 w-4 flex-shrink-0 text-accent" />
-                <div>
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="font-semibold text-foreground-strong">{a.title}</span>
-                    {a.year && <span className="font-mono text-xs text-muted-foreground">{a.year}</span>}
-                  </div>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{a.description}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <Icon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                  {a.year && <span className="font-mono text-xs tracking-[0.08em] text-muted-foreground uppercase">{a.year}</span>}
                 </div>
+                <div className="mt-3 font-serif text-xl text-foreground-strong">{a.title}</div>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{a.description}</p>
               </ScrollReveal>
             )
           })}

@@ -68,13 +68,36 @@ export const FRAME_PATH = (n: number) => `/frames-matted/ezgif-frame-${String(n)
 // stays on the unwarped, linear progress value.
 const FRAME_WARP_EXPONENT = 0.6
 
-export function frameIndexForProgress(progress: number) {
+/** Continuous (unrounded) frame position — lets the canvas cross-fade
+ * between the two nearest frames instead of hard-cutting at whichever one
+ * Math.round happens to land on, which is what actually reads as a
+ * "slideshow" with only 150 source frames to work with. */
+export function frameFloatForProgress(progress: number) {
   const clamped = Math.max(0, Math.min(1, progress))
   const warped = Math.pow(clamped, FRAME_WARP_EXPONENT)
-  return Math.round(warped * (FRAME_COUNT - 1))
+  return warped * (FRAME_COUNT - 1)
 }
 
-export const CHAPTER_LABELS = ['Intro', 'Education', 'Experience', 'Projects', 'Skills', 'Contact']
+export function frameIndexForProgress(progress: number) {
+  return Math.round(frameFloatForProgress(progress))
+}
+
+// Independent of CHAPTER_BANDS on purpose: the crossfade timing between
+// chapters and the machine's scale boost don't need to move in lockstep,
+// and tuning one shouldn't risk nudging the other. Boosted from the very
+// start (Intro gets the same presence as a "first impression"), holds
+// across Education and most of Experience, and is fully back to baseline
+// before Projects starts fading in — so the "significantly exploded"
+// Build-section machine (sized by the stage grid track, not this) is never
+// touched by it.
+const MACHINE_SCALE_BAND = { inStart: 0, inEnd: 0, outStart: 0.55, outEnd: 0.6 }
+const MACHINE_SCALE_BOOST = 0.13
+
+export function machineScaleForProgress(progress: number) {
+  return 1 + trapezoidOpacity(progress, MACHINE_SCALE_BAND) * MACHINE_SCALE_BOOST
+}
+
+export const CHAPTER_LABELS = ['Intro', 'Education', 'Experience', 'Projects', 'Skills', 'Achievements', 'Contact']
 
 export const CHAPTER_SECTION_IDS = ['spine-intro', 'spine-education', 'spine-experience', 'spine-projects']
 

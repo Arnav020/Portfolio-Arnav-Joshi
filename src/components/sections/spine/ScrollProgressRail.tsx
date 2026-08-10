@@ -3,9 +3,8 @@
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useSpineNavigation } from '@/hooks/useSpineNavigation'
+import { CHAPTER_LABELS } from './chapters'
 import { cn } from '@/lib/utils'
-
-const CHAPTERS = ['Intro', 'Education', 'Experience', 'Projects', 'Skills', 'Contact']
 
 /**
  * Fixed-left chapter index, driven by the shared useSpineNavigation hook
@@ -43,7 +42,7 @@ export function ScrollProgressRail() {
     >
       <div className="relative flex flex-col gap-4">
         <span className="absolute top-1 bottom-1 left-[3px] w-px bg-border" aria-hidden="true" />
-        {CHAPTERS.map((label, i) => {
+        {CHAPTER_LABELS.map((label, i) => {
           const active = i === activeIndex
           return (
             <button

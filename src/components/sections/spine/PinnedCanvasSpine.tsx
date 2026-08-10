@@ -10,7 +10,8 @@ import {
   CHAPTER_LABELS,
   CHAPTER_TARGET_PROGRESS,
   chapterIndexForProgress,
-  frameIndexForProgress,
+  frameFloatForProgress,
+  machineScaleForProgress,
   trapezoidOpacity,
   FRAME_COUNT,
   FRAME_PATH,
@@ -35,14 +36,21 @@ const CHAPTERS = [
 ]
 const EXPERIENCE_BAND = CHAPTER_BANDS[2]
 const PIN_DISTANCE_VH = 5.5
-const SCRUB = 0.2
+// How fast the on-screen (display) progress chases the raw scroll-driven
+// (target) progress, per animation frame — see the tick()/requestTick()
+// loop below. Lower = smoother/slower-feeling, higher = snappier/closer to
+// 1:1 with scroll. 0.15 settles in a handful of frames without ever
+// feeling laggy or disconnected from the scroll itself.
+const PROGRESS_LERP = 0.15
 
 /**
  * Desktop-only (mounted by DeconstructionSpine only at >=lg and without
  * reduced-motion). Four real grid columns — index, narrative, stage,
  * meta — so the machine is geometrically unable to overlap the editorial
  * text and the chapter index is geometrically unable to overlap either.
- * Only the drawn frame changes; the stage itself never moves or resizes.
+ * The stage's grid cell never moves or resizes; only a CSS transform:scale
+ * on the stage itself (never on text) gives the machine slightly more
+ * presence during Education/Experience — see machineScaleForProgress.
  */
 export function PinnedCanvasSpine() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -51,7 +59,7 @@ export function PinnedCanvasSpine() {
   const leftRefs = useRef<(HTMLDivElement | null)[]>([])
   const rightRefs = useRef<(HTMLDivElement | null)[]>([])
   const imagesRef = useRef<HTMLImageElement[]>([])
-  const currentIndexRef = useRef(-1)
+  const currentRawIndexRef = useRef(-1)
   const currentChapterRef = useRef(-1)
   const dprRef = useRef(1)
 
@@ -111,45 +119,78 @@ export function PinnedCanvasSpine() {
     }
   }, [])
 
-  function drawFrame(index: number, force = false) {
+  // Cross-fades the two nearest frames by the fractional part of rawIndex
+  // instead of hard-cutting on whichever one Math.round lands on. With only
+  // 150 source frames, a hard cut between discrete frames is exactly what
+  // reads as a slideshow; adjacent frames are visually close enough that a
+  // plain alpha blend (not real interpolation, just two draws) is
+  // indistinguishable from true in-between motion.
+  function drawBlendedFrame(rawIndex: number, force = false) {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
-    if (!force && index === currentIndexRef.current) return
 
-    const img = imagesRef.current[index]
-    if (!img || !img.complete || img.naturalWidth === 0) return
+    const clamped = Math.max(0, Math.min(FRAME_COUNT - 1, rawIndex))
+    if (!force && Math.abs(clamped - currentRawIndexRef.current) < 0.001) return
+
+    const i0 = Math.floor(clamped)
+    const i1 = Math.min(FRAME_COUNT - 1, i0 + 1)
+    const t = clamped - i0
+
+    const img0 = imagesRef.current[i0]
+    const img1 = imagesRef.current[i1]
+    const ready0 = !!img0 && img0.complete && img0.naturalWidth > 0
+    const ready1 = !!img1 && img1.complete && img1.naturalWidth > 0
+    if (!ready0 && !ready1) return
 
     const dpr = dprRef.current
     const cw = canvas.width / dpr
     const ch = canvas.height / dpr
+
     // Contain-fit: the whole machine stays visible, never cropped, never
     // upscaled beyond what the stage's own bounds require.
-    const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight)
-    const dw = img.naturalWidth * scale
-    const dh = img.naturalHeight * scale
-    const dx = (cw - dw) / 2
-    const dy = (ch - dh) / 2
+    function draw(img: HTMLImageElement, alpha: number) {
+      const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight)
+      const dw = img.naturalWidth * scale
+      const dh = img.naturalHeight * scale
+      ctx!.globalAlpha = alpha
+      ctx!.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh)
+    }
 
     ctx.clearRect(0, 0, cw, ch)
-    ctx.drawImage(img, dx, dy, dw, dh)
-    currentIndexRef.current = index
+    if (ready0 && ready1) {
+      draw(img0, 1)
+      if (t > 0.002) draw(img1, t)
+    } else if (ready0) {
+      draw(img0, 1)
+    } else if (ready1) {
+      draw(img1, 1)
+    }
+    ctx.globalAlpha = 1
+    currentRawIndexRef.current = clamped
+  }
+
+  function applyMachineScale(p: number) {
+    const stage = stageRef.current
+    if (!stage) return
+    stage.style.transform = `scale(${machineScaleForProgress(p)})`
   }
 
   function applyChapterStyles(p: number) {
     CHAPTER_BANDS.forEach((band, i) => {
       const o = trapezoidOpacity(p, band)
-      // Rounded to a whole pixel and expressed as translate3d rather than
-      // translateY: a fractional-pixel transform forces the browser to
-      // interpolate text between pixel boundaries every single scroll tick,
-      // which is what made the right-column copy look soft/"broken" while
-      // scrolling — translate3d also reliably promotes the panel to its own
-      // GPU layer instead of leaving that to chance, keeping glyph
-      // rendering stable while it animates.
-      const y = Math.round((1 - o) * 16)
+      // Opacity only — no transform. A translateY entrance was here before,
+      // but any non-identity transform (even one rounded to a whole pixel)
+      // forces the browser to promote the panel to its own GPU-composited
+      // layer, and that layer's bounds come from the grid's own computed
+      // width — which, using `fr` tracks, is essentially never a whole
+      // number of pixels. A composited layer with fractional bounds is
+      // exactly what produces text that looks soft at 100% zoom and sharpens
+      // at other zoom levels (the rounding happens to land differently).
+      // Fading opacity alone never triggers that: the panel stays in normal
+      // layout, so its text rasterizes the same way static text does.
       const style = {
         opacity: String(o),
-        transform: `translate3d(0, ${y}px, 0)`,
         pointerEvents: o > 0.5 ? 'auto' : 'none',
       } as const
       const left = leftRefs.current[i]
@@ -202,25 +243,55 @@ export function PinnedCanvasSpine() {
         ctx!.setTransform(dprRef.current, 0, 0, dprRef.current, 0, 0)
         ctx!.imageSmoothingEnabled = true
         ctx!.imageSmoothingQuality = 'high'
-        drawFrame(Math.max(currentIndexRef.current, 0), true)
+        drawBlendedFrame(Math.max(currentRawIndexRef.current, 0), true)
         ScrollTrigger.refresh()
       }
 
       resizeCanvas()
 
+      // scroll position → target progress (proxy.p, tied 1:1 to scroll via
+      // scrub: true) → smoothly interpolated progress (displayP, chased
+      // every animation frame below) → frame/opacity/scale. Decoupling the
+      // actual draw/style work from scroll-event cadence this way is what
+      // keeps small, fast scroll deltas from reading as frame jitter — the
+      // tick loop only ever moves displayP a fraction of the way to
+      // wherever proxy.p currently is, and self-stops once it catches up.
       const proxy = { p: 0 }
+      let displayP = 0
+      let rafId: number | null = null
+
+      function renderAtProgress(p: number) {
+        drawBlendedFrame(frameFloatForProgress(p))
+        applyChapterStyles(p)
+        applyMachineScale(p)
+      }
+
+      function tick() {
+        const diff = proxy.p - displayP
+        if (Math.abs(diff) < 0.0004) {
+          displayP = proxy.p
+          renderAtProgress(displayP)
+          rafId = null
+          return
+        }
+        displayP += diff * PROGRESS_LERP
+        renderAtProgress(displayP)
+        rafId = requestAnimationFrame(tick)
+      }
+
+      function requestTick() {
+        if (rafId === null) rafId = requestAnimationFrame(tick)
+      }
+
       const tween = gsap.to(proxy, {
         p: 1,
         ease: 'none',
-        onUpdate: () => {
-          drawFrame(frameIndexForProgress(proxy.p))
-          applyChapterStyles(proxy.p)
-        },
+        onUpdate: requestTick,
         scrollTrigger: {
           trigger: section,
           start: 'top top',
           end: () => '+=' + window.innerHeight * PIN_DISTANCE_VH,
-          scrub: SCRUB,
+          scrub: true,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -254,6 +325,7 @@ export function PinnedCanvasSpine() {
 
       return () => {
         clearTimeout(resizeTimeout)
+        if (rafId !== null) cancelAnimationFrame(rafId)
         window.removeEventListener('resize', onResize)
         window.removeEventListener(SPINE_GOTO_EVENT, onGoto)
         tween.kill()
@@ -264,12 +336,19 @@ export function PinnedCanvasSpine() {
 
   return (
     <section id="hero" ref={sectionRef} className="relative h-screen w-full overflow-hidden bg-background">
-      {/* The right column (education/experience/project details — the actual
-          content the site is about) is still given a bit more weight than
-          the left; the stage now runs larger (targeting ~40-48vw on a
-          1440px viewport) since it no longer has to fight a card boundary
-          for visual space. */}
-      <div className="absolute inset-0 z-10 grid grid-cols-[clamp(56px,4vw,84px)_minmax(200px,0.9fr)_clamp(400px,44vw,760px)_minmax(230px,1.05fr)] items-stretch gap-6 px-8 py-16 lg:gap-10 lg:px-14">
+      {/* Left (narrative) column got squeezed too far in an earlier pass
+          (0.75fr) while growing the right column for the Projects chapter —
+          since all four chapters share this one grid, that starved Intro's
+          heading/paragraph/CTA row of room (the two buttons need ~290px
+          side by side; the column was landing well under that). Left's
+          305px floor covers the buttons with a safety margin; right keeps a
+          345px floor (up from the 230px this whole area started at) so
+          Projects' titles don't wrap onto a third line as a side effect.
+          Fitting both meant trimming gap and outer padding a bit further
+          (24px / 32px, was 40px / 56px) — none of it touches the index or
+          stage columns. Right still carries more fr-weight and more xl+
+          padding than left, so it grows faster and sits further inward. */}
+      <div className="absolute inset-0 z-10 grid grid-cols-[clamp(56px,4vw,84px)_minmax(305px,1fr)_clamp(380px,40vw,720px)_minmax(345px,1.2fr)] items-stretch gap-4 py-16 pr-6 pl-6 lg:gap-6 lg:pr-8 lg:pl-8 xl:pr-16">
         {/* Index rail — its own protected column, never overlapping content. */}
         <div className="relative">
           <div className="absolute top-1/2 left-0 flex -translate-y-1/2 flex-col gap-5">
@@ -304,7 +383,7 @@ export function PinnedCanvasSpine() {
               ref={(el) => {
                 leftRefs.current[i] = el
               }}
-              className="absolute inset-0 flex flex-col justify-center will-change-transform"
+              className="absolute inset-0 flex flex-col justify-center"
               style={{ opacity: i === 0 ? 1 : 0, pointerEvents: i === 0 ? 'auto' : 'none' }}
             >
               <Left />
@@ -323,13 +402,20 @@ export function PinnedCanvasSpine() {
               explodes because it isn't derived from the frame content at
               all — it's the same shadow whether the machine is assembled or
               fully exploded. */}
-          <div ref={stageRef} className="relative aspect-[16/9] w-full">
+          <div ref={stageRef} className="relative aspect-[16/9] w-full will-change-transform">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-[22%] bottom-[6%] h-[8%] rounded-[50%] blur-2xl"
               style={{ background: 'radial-gradient(ellipse at center, rgba(43,33,29,0.22), transparent 72%)' }}
             />
-            <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
+            {/* Idle float lives on its own wrapper, separate from stageRef
+                (which gets the JS-driven scroll scale) and separate from the
+                shadow above (which stays fixed) — so the machine reads as
+                hovering above a grounded shadow rather than the whole stage
+                bobbing as one block. */}
+            <div className="absolute inset-0 animate-float">
+              <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
+            </div>
             {!posterReady && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-border-strong" />
@@ -345,7 +431,7 @@ export function PinnedCanvasSpine() {
               ref={(el) => {
                 rightRefs.current[i] = el
               }}
-              className="absolute inset-0 flex flex-col justify-center will-change-transform"
+              className="absolute inset-0 flex flex-col justify-center"
               style={{ opacity: i === 0 ? 1 : 0, pointerEvents: i === 0 ? 'auto' : 'none' }}
             >
               <Right />
