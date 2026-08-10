@@ -1,10 +1,8 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { fadeInUp } from '@/lib/animations'
+import { ScrollReveal } from './ScrollReveal'
 
 interface SectionHeadingProps {
+  entry: number
   label: string
   title: string
   description?: string
@@ -12,36 +10,18 @@ interface SectionHeadingProps {
   align?: 'left' | 'center'
 }
 
-export function SectionHeading({
-  label,
-  title,
-  description,
-  className,
-  align = 'center',
-}: SectionHeadingProps) {
+export function SectionHeading({ entry, label, title, description, className, align = 'left' }: SectionHeadingProps) {
   return (
-    <motion.div
-      variants={fadeInUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
-      className={cn(
-        'mb-16',
-        align === 'center' ? 'text-center' : 'text-left',
-        className
-      )}
-    >
-      <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-indigo-400 mb-4">
-        {label}
+    <ScrollReveal className={cn('mb-12 md:mb-16', align === 'center' ? 'text-center' : 'text-left', className)}>
+      <span className="mb-3 inline-block font-mono text-xs font-semibold tracking-[0.2em] text-accent uppercase">
+        {String(entry).padStart(2, '0')} — {label}
       </span>
-      <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--foreground)] mb-4 leading-tight">
-        {title}
-      </h2>
+      <h2 className="mb-4 font-serif text-4xl leading-tight text-foreground-strong md:text-5xl">{title}</h2>
       {description && (
-        <p className="text-[var(--muted-foreground)] text-lg max-w-2xl mx-auto leading-relaxed">
+        <p className={cn('max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg', align === 'center' && 'mx-auto')}>
           {description}
         </p>
       )}
-    </motion.div>
+    </ScrollReveal>
   )
 }

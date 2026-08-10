@@ -1,3 +1,8 @@
+export interface CaseStudySection {
+  heading: string
+  body: string[]
+}
+
 export interface Project {
   slug: string
   title: string
@@ -8,16 +13,25 @@ export interface Project {
   githubUrl: string
   demoUrl?: string
   highlights: string[]
-  featured: boolean
   stars?: number
   language?: string
+  /** Cover screenshot for the project card. Falls back to an abstract placeholder when absent. */
+  image?: string
+
+  // Case-study fields — SynthSales/Failure Injection additionally get a diagram
+  // (see `diagram`); the rest of the six get full prose without one.
+  timeframe?: string
+  problem?: CaseStudySection
+  approach?: CaseStudySection
+  decisions?: CaseStudySection[]
+  outcome?: CaseStudySection
+  metrics?: { label: string; value: string }[]
+  diagram?: 'synthsales-pipeline' | 'failure-injection-pool'
 }
 
 export interface Skill {
   name: string
-  level: number        // 0–100
-  category: 'ml' | 'backend' | 'frontend' | 'devops' | 'languages'
-  icon?: string
+  category: 'ml' | 'backend' | 'frontend' | 'devops' | 'languages' | 'data'
 }
 
 export interface Experience {
@@ -59,4 +73,4 @@ export interface GitHubRepoStats {
 }
 
 export type ProjectCategory = 'all' | 'ml' | 'backend' | 'fullstack' | 'mlops' | 'other'
-export type SkillCategory = 'languages' | 'ml' | 'backend' | 'frontend' | 'devops'
+export type SkillCategory = 'languages' | 'ml' | 'backend' | 'frontend' | 'devops' | 'data'

@@ -71,25 +71,16 @@ export async function getAllRepos(): Promise<GitHubRepo[]> {
   }
 }
 
-// Map GitHub repo names to project slugs
+// Map GitHub repo names to project slugs — kept in sync with src/data/projects.ts
 export const repoSlugMap: Record<string, string> = {
   'Agentic-AI-Sales-CRM': 'agentic-ai-sales-crm',
   'Failure-Injection-Observability-Engine': 'failure-injection-observability-engine',
   'Halo-CME-Detection': 'halo-cme-detection',
-  'PPO-Based-Spoof-Detection': 'ppo-spoof-detection',
   'Speech-Emotion-Recognition-App': 'speech-emotion-recognition',
-  'MarketPulse-AI': 'marketpulse-ai',
-  'LeafyLens-Crop-Recommendation-and-Disease-Detection': 'leafylens',
-  'AOI-IC-Detection': 'aoi-ic-detection',
-  'Face-Recognition-Attendance': 'face-recognition-attendance',
-  'Find-It': 'find-it',
-  'Handwritten-Letter-Recognition': 'handwritten-letter-recognition',
-  'HireSmart-AI': 'hiresmart-ai',
   'Linear-Clone': 'linear-clone',
-  'ML-Chatbot': 'ml-chatbot',
-  'MLOps-CI-Workflow': 'mlops-ci-workflow',
-  'MLOps-Docker-Workflow': 'mlops-docker-workflow',
-  'MLOps-Experiments-with-MLFlow': 'mlops-experiments-mlflow',
-  'MLOps-Pipeline-Using-DVC-AWS': 'mlops-pipeline-dvc-aws',
   'MLOps-Vehicle-Insurance-Domain': 'mlops-vehicle-insurance',
+}
+
+export function repoNameForSlug(slug: string): string | undefined {
+  return Object.entries(repoSlugMap).find(([, s]) => s === slug)?.[0]
 }

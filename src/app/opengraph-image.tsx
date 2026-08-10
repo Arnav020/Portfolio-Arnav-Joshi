@@ -10,7 +10,7 @@ export default async function Image() {
     (
       <div
         style={{
-          background: '#0a0a0f',
+          background: '#f5f5dc',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -18,40 +18,27 @@ export default async function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: 'sans-serif',
+          position: 'relative',
         }}
       >
-        {/* Background grid */}
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            backgroundImage:
-              'linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
-        {/* Glow */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-20%',
+            top: '-15%',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '800px',
+            width: '900px',
             height: '400px',
             borderRadius: '50%',
-            background:
-              'radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(212,126,48,0.16) 0%, transparent 70%)',
           }}
         />
-        {/* Name */}
+
         <div
           style={{
             fontSize: 96,
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)',
-            backgroundClip: 'text',
-            color: 'transparent',
+            color: '#6d3b07',
             letterSpacing: '-2px',
             marginBottom: 16,
             position: 'relative',
@@ -59,34 +46,21 @@ export default async function Image() {
         >
           Arnav Joshi
         </div>
-        {/* Role */}
-        <div
-          style={{
-            fontSize: 32,
-            color: '#9ca3af',
-            marginBottom: 40,
-            position: 'relative',
-          }}
-        >
-          ML Engineer · Full Stack Developer · B.Tech CSE
+
+        <div style={{ fontSize: 32, color: '#6f4e37', marginBottom: 40, position: 'relative' }}>
+          ML/AI Engineer · Full-Stack Developer · B.Tech CSE
         </div>
-        {/* Tags */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 12,
-            position: 'relative',
-          }}
-        >
-          {['Python', 'PyTorch', 'Next.js', 'Go', 'LLMs'].map((tech) => (
+
+        <div style={{ display: 'flex', gap: 12, position: 'relative' }}>
+          {['Python', 'PyTorch', 'Agentic AI', 'Next.js', 'Go'].map((tech) => (
             <div
               key={tech}
               style={{
                 padding: '8px 20px',
-                borderRadius: 12,
-                border: '1px solid rgba(99,102,241,0.3)',
-                background: 'rgba(99,102,241,0.1)',
-                color: '#818cf8',
+                borderRadius: 999,
+                border: '1px solid rgba(212,126,48,0.4)',
+                background: 'rgba(212,126,48,0.12)',
+                color: '#a35c1f',
                 fontSize: 20,
               }}
             >
@@ -94,20 +68,20 @@ export default async function Image() {
             </div>
           ))}
         </div>
-        {/* CGPA badge */}
+
         <div
           style={{
             position: 'absolute',
             bottom: 40,
             right: 60,
             fontSize: 18,
-            color: '#4ade80',
+            color: '#6d3b07',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
           }}
         >
-          CGPA 9.55 · Thapar Institute
+          CGPA 9.57 · Thapar Institute
         </div>
       </div>
     ),

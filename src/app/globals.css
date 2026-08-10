@@ -1,36 +1,59 @@
 @import "tailwindcss";
 
 @theme {
-  --animate-fade-in: fadeIn 0.6s ease-out forwards;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-foreground: var(--foreground);
+  --color-foreground-strong: var(--foreground-strong);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --animate-fade-in: fadeIn 0.6s var(--ease-out) forwards;
+  --animate-rise-in: riseIn 0.8s var(--ease-out) forwards;
 }
 
 @keyframes fadeIn {
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
-@layer base {
-  :root {
-    --background: #0a0a0f;
-    --foreground: #f0f0f0;
-    --accent: #6366f1;
-    --accent-foreground: #ffffff;
-    --muted: #1a1a2e;
-    --muted-foreground: #9ca3af;
-    --border: rgba(255, 255, 255, 0.08);
-    --card: rgba(255, 255, 255, 0.04);
-    --accent-glow: rgba(99, 102, 241, 0.15);
-  }
 
-  .light {
-    --background: #fafafa;
-    --foreground: #0a0a0f;
-    --accent: #4f46e5;
-    --accent-foreground: #ffffff;
-    --muted: #f4f4f5;
-    --muted-foreground: #6b7280;
-    --border: rgba(0, 0, 0, 0.08);
-    --card: rgba(0, 0, 0, 0.02);
-    --accent-glow: rgba(79, 70, 229, 0.1);
+@keyframes riseIn {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@layer base {
+  /*
+   * Single fixed theme — warm porcelain cream with a restrained burgundy
+   * signature accent. No dark mode: this is the whole identity, not a
+   * default that gets overridden. Accent is used sparingly by design (active
+   * nav, dots, CTA fills, underlines) — never as a large fill.
+   */
+  :root {
+    --background: #f5f0e8;
+    --surface: #efe8dd;
+    --surface-hover: #e6dcca;
+    --surface-subtle: #fbf8f3;
+    --foreground: #3d322c;
+    --foreground-strong: #2b211d;
+    --muted-foreground: #746860;
+    --accent: #6d1f3a;
+    --border: #d8cec2;
+    --border-strong: #c2b39f;
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+    --content-width: 72rem;
+    --prose-width: 42rem;
   }
 
   * {
@@ -39,29 +62,26 @@
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 80px;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-geist-sans), sans-serif;
+    font-family: var(--font-sans);
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    transition: background-color 300ms ease, color 300ms ease;
   }
 
   ::selection {
     background-color: var(--accent);
-    color: white;
+    color: var(--background);
   }
 
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    overscroll-behavior: contain;
-    transform: translateZ(0);
+    scrollbar-color: var(--border-strong) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -73,49 +93,18 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border-strong);
     border-radius: 20px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
-    background-clip: content-box;
   }
 }
 
-@layer utilities {
-  .glass {
-    background: var(--card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-  }
+/* Diagram edges: a subtle marching-ants flow indicating data movement */
+@keyframes diagram-dash-flow {
+  to { stroke-dashoffset: -16; }
+}
 
-  .glow {
-    box-shadow: 0 0 40px var(--accent-glow);
-  }
-
-  .text-gradient {
-    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .text-gradient-green {
-    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .border-gradient {
-    border: 1px solid transparent;
-    background: linear-gradient(var(--background), var(--background)) padding-box,
-                linear-gradient(135deg, #6366f1, #a855f7, #ec4899) border-box;
-  }
+.diagram-edge-flow {
+  animation: diagram-dash-flow 1.6s linear infinite;
 }
 
 /* Focus ring */
@@ -149,7 +138,12 @@
   white-space: normal;
 }
 
-/* Reduced motion */
+/*
+ * Reduced motion: components that move things (transform-based reveals, the
+ * hero canvas, diagram flow-lines) check useReducedMotion() in JS and skip
+ * translate/scale entirely rather than just speeding it up. This global rule
+ * is the safety net for anything that doesn't — instant instead of animated.
+ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -157,10 +151,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
 
-html, body {
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -3,262 +3,262 @@ import { Project, ProjectCategory } from '@/types'
 export const projects: Project[] = [
   {
     slug: 'agentic-ai-sales-crm',
-    title: 'Agentic AI Sales CRM',
-    description: 'Full-stack CRM platform with AI-powered lead enrichment, scoring, and automated outreach using multi-agent workflows.',
-    longDescription: 'Built an agentic AI CRM platform to automate lead enrichment, scoring, contact discovery, and personalised outreach using LLM-based multi-agent workflows. Implemented real-time job orchestration with background workers and SSE-based live log streaming.',
-    techStack: ['Python', 'FastAPI', 'React', 'MongoDB', 'LLMs', 'SSE', 'Docker'],
+    title: 'SynthSales — Agentic AI Sales CRM',
+    description:
+      'An 8-agent LLM pipeline that researches, scores, and reaches out to leads automatically — with a confidence layer that refuses to trust weak evidence.',
+    longDescription:
+      'SynthSales automates the parts of outbound sales that eat an SDR\'s week: researching a company, deciding if it\'s worth pursuing, finding the right contact, verifying they\'re reachable, and writing the first message. Eight specialised agents hand off work through status-driven transitions, running four-way concurrent to keep throughput high without losing the ability to roll back a bad run from a snapshot.',
+    techStack: ['Python', 'FastAPI', 'Next.js', 'PostgreSQL', 'TypeScript', 'LLM APIs'],
     category: 'fullstack',
     githubUrl: 'https://github.com/Arnav020/Agentic-AI-Sales-CRM',
+    demoUrl: undefined,
+    image: '/synthsales/landing_page.png',
     highlights: [
-      'LLM-based multi-agent orchestration for automated lead workflows',
-      'Real-time SSE log streaming for live campaign monitoring',
-      'Converts unstructured data into actionable sales leads',
+      'Architected an 8-agent pipeline — research, scoring, contact-finding, verification, outreach, follow-up, scheduling, reply classification',
+      'Confidence-calibrated ranking layer hard-caps AI-driven scores by up to 54 points when evidence is weak',
+      '3-provider LLM failover chain (Gemini/Groq/OpenRouter) with automatic rate-limit rerouting and self-correcting structured generation',
+      '6-class intent classifier gates auto-replies behind a 70% confidence threshold',
     ],
-    featured: true,
+    timeframe: '2025',
+    problem: {
+      heading: 'The problem',
+      body: [
+        'Outbound sales research is repetitive and easy to automate badly: an LLM will confidently score a lead as "hot" off a thin LinkedIn snippet, and a single flaky API call can stall an entire pipeline for hours.',
+        'The goal was an agentic system that moves fast without inheriting the two classic failure modes of "just wrap it in a prompt" AI products — overconfident output, and no resilience when a provider goes down.',
+      ],
+    },
+    approach: {
+      heading: 'Approach',
+      body: [
+        'Split the pipeline into eight single-purpose agents (research, scoring, contact-finding, verification, outreach, follow-up, scheduling, reply classification) connected by explicit status transitions rather than one monolithic prompt chain, so each stage can be retried, inspected, or re-run independently.',
+        'Ran four-way concurrent workers against the pipeline with snapshot-based rollback, so a bad batch can be rewound and re-run without re-processing leads that already succeeded.',
+      ],
+    },
+    decisions: [
+      {
+        heading: 'Refusing to trust the model\'s own confidence',
+        body: [
+          'The scoring agent\'s raw LLM output is passed through a calibration layer that cross-checks it against the actual evidence gathered — when the evidence is thin, it hard-caps the score by up to 54 points rather than letting the model\'s stated confidence stand unchecked. Auto-replies only go out once a 6-class intent classifier clears a 70% confidence threshold; anything below that gets queued for a human.',
+        ],
+      },
+      {
+        heading: 'Failing over instead of failing',
+        body: [
+          'LLM calls run behind a 3-provider failover chain (Gemini, Groq, OpenRouter) with automatic rerouting on rate limits, and the search backend sits behind its own circuit breaker. Email verification skips paid API calls where possible — free DNS/MX checks and caching handle the common case, so the expensive path only runs when it has to.',
+        ],
+      },
+    ],
+    outcome: {
+      heading: 'Outcome',
+      body: [
+        'A pipeline that converts unstructured company data into ranked, verified, outreach-ready leads with live SSE log streaming for monitoring a campaign as it runs — and that keeps working when any single LLM or search provider has a bad day.',
+      ],
+    },
+    metrics: [
+      { label: 'Agents orchestrated', value: '8' },
+      { label: 'LLM providers with failover', value: '3' },
+      { label: 'Score cap on weak evidence', value: 'up to 54 pts' },
+      { label: 'Reply confidence gate', value: '70%' },
+    ],
+    diagram: 'synthsales-pipeline',
   },
   {
     slug: 'failure-injection-observability-engine',
     title: 'Failure Injection & Observability Engine',
-    description: 'Production-grade Go backend to simulate real-world service failures with structured logging and root cause detection.',
-    longDescription: 'Engineered a backend system in Go to simulate latency, timeout, flaky, and error injection scenarios. Built a concurrent log analysis engine using goroutines and worker pools, computing P95/P99 latency and mapping anomalies to actionable diagnostics.',
-    techStack: ['Go', 'Docker', 'CLI', 'Distributed Systems', 'JSON Logging'],
+    description:
+      'A Go backend that deliberately breaks services on purpose — latency, timeouts, errors, flakiness — so their observability can be proven before production does it for you.',
+    longDescription:
+      'Chaos engineering in miniature: a fault-injection backend that simulates real-world failure modes behind goroutine worker pools, paired with a concurrent log-analysis engine that computes P95/P99 latency and maps anomalies to root causes automatically.',
+    techStack: ['Go', 'Goroutines', 'Docker', 'Distributed Systems', 'JSON Logging'],
     category: 'backend',
     githubUrl: 'https://github.com/Arnav020/Failure-Injection-Observability-Engine',
+    image: '/failure-debugger/failure_debugger_terminal.png',
     highlights: [
-      'P95/P99 latency computation with anomaly detection',
-      'Concurrent worker pool architecture using goroutines',
-      'Rule-based root cause inference engine',
+      'Simulates latency, timeout, error, and flaky failure modes via goroutine worker pools with structured JSON logging',
+      'Concurrent log-analysis engine computing P95/P99 latency and diagnosing root causes across 5 detection rules',
+      'Shrank the deployment image from 300MB to 20MB (93% reduction) via multi-stage Docker builds',
     ],
-    featured: true,
+    timeframe: '2025',
+    problem: {
+      heading: 'The problem',
+      body: [
+        'Most teams discover their logging is inadequate the first time something actually breaks in production. This project inverts that: build the failures on purpose, in a controlled system, and use them to stress-test observability before it matters.',
+      ],
+    },
+    approach: {
+      heading: 'Approach',
+      body: [
+        'Built a Go backend that injects latency spikes, timeouts, hard errors, and flaky (intermittent) failures into request flows via goroutine worker pools, with every request logged as structured JSON — no free-text logs that need regex archaeology later.',
+        'On top of that, a separate concurrent log-analysis engine ingests the structured logs, computes P95/P99 latency percentiles per endpoint, and runs the results through 5 root-cause detection rules to turn raw anomalies into an actionable diagnosis.',
+      ],
+    },
+    decisions: [
+      {
+        heading: 'Concurrency for both the chaos and the analysis',
+        body: [
+          'Both halves of the system — failure injection and log analysis — are built around goroutine worker pools rather than sequential processing, so the tool can generate and analyze load at a realistic scale instead of a toy single-threaded simulation.',
+        ],
+      },
+      {
+        heading: 'Multi-stage Docker builds',
+        body: [
+          'The initial deployment image was a straightforward single-stage build at ~300MB. Restructuring it into a multi-stage build — compiling in one stage, copying only the static binary into a minimal final image — cut that to 20MB, a 93% reduction, with no change in runtime behavior.',
+        ],
+      },
+    ],
+    outcome: {
+      heading: 'Outcome',
+      body: [
+        'A reusable harness for proving an observability stack actually surfaces the failure modes it claims to catch, running in a container an order of magnitude smaller than the naive build.',
+      ],
+    },
+    metrics: [
+      { label: 'Failure modes simulated', value: '4' },
+      { label: 'Root-cause detection rules', value: '5' },
+      { label: 'Docker image size cut', value: '93%' },
+      { label: 'Latency metrics computed', value: 'P95 / P99' },
+    ],
+    diagram: 'failure-injection-pool',
   },
   {
     slug: 'halo-cme-detection',
-    title: 'Halo CME Detection System',
-    description: 'Physics-informed ML system to detect Halo Coronal Mass Ejections using solar wind plasma data from Aditya-L1.',
-    longDescription: 'Developed a physics-informed ML pipeline to detect Halo CMEs using SWIS instrument data from Aditya-L1. Trained a soft voting ensemble achieving 100% CME recall with engineered domain-specific features.',
-    techStack: ['Python', 'Scikit-learn', 'XGBoost', 'CDF', 'Feature Engineering'],
+    title: 'Physics-Informed Halo CME Detection System',
+    description:
+      'A physics-informed ML pipeline that detects Halo Coronal Mass Ejections from real Aditya-L1 solar-wind plasma data, with zero missed events on its labeled test set.',
+    longDescription:
+      'Developed a physics-informed ML pipeline to detect Halo CMEs using SWIS instrument data from ISRO\'s Aditya-L1 spacecraft. A soft-voting ensemble trained on domain-engineered features reaches 85% accuracy with zero false negatives — the metric that matters most when the cost of missing a real event is high.',
+    techStack: ['Python', 'Scikit-learn', 'XGBoost', 'CDF Ingestion', 'Feature Engineering'],
     category: 'ml',
     githubUrl: 'https://github.com/Arnav020/Halo-CME-Detection',
+    demoUrl: undefined,
+    image: '/halo-cme/cme_landing.png',
     highlights: [
-      '100% CME recall on Aditya-L1 SWIS dataset',
-      'Soft voting ensemble: Random Forest + XGBoost + Logistic Regression',
-      'End-to-end CDF ingestion and event windowing pipeline',
+      'Derived 4 domain-specific features from 8 candidates via class-separability screening on real solar-wind plasma data',
+      'Soft-voting ensemble (Random Forest + XGBoost + Logistic Regression) trained on 43 labeled event windows',
+      '85% accuracy with zero false negatives — no missed CME events on the labeled set',
+      'Deployed as a public Streamlit app; end-to-end CDF ingestion and event-windowing pipeline',
     ],
-    featured: true,
-  },
-  {
-    slug: 'ppo-spoof-detection',
-    title: 'PPO-Based Spoof Detection',
-    description: 'Reinforcement learning system using Proximal Policy Optimisation for detecting spoofing attacks.',
-    longDescription: 'Designed a PPO-based reinforcement learning agent for real-time spoof detection, leveraging policy gradient methods to adaptively identify anomalous patterns in sequential data.',
-    techStack: ['Python', 'PyTorch', 'PPO', 'Reinforcement Learning'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/PPO-Based-Spoof-Detection',
-    highlights: [
-      'PPO policy gradient agent for adaptive detection',
-      'Sequential anomaly pattern recognition',
+    timeframe: '2024',
+    problem: {
+      heading: 'The problem',
+      body: [
+        'Halo Coronal Mass Ejections are Earth-directed solar eruptions that can disrupt satellites and power grids. Detecting them from raw solar-wind plasma instrument data is a small-data, high-stakes classification problem — missing a real event (a false negative) is far more costly than a false alarm.',
+      ],
+    },
+    approach: {
+      heading: 'Approach',
+      body: [
+        'Built an ingestion pipeline reading CDF (Common Data Format) files from Aditya-L1\'s SWIS instrument and windowing the continuous plasma stream into discrete candidate events.',
+        'Screened 8 candidate features derived from the physics of CME plasma signatures down to the 4 most class-separable, rather than throwing every possible feature at the model — a physics-informed feature set trained on 43 labeled event windows.',
+      ],
+    },
+    decisions: [
+      {
+        heading: 'Optimizing for recall, not just accuracy',
+        body: [
+          'A soft-voting ensemble of Random Forest, XGBoost, and Logistic Regression was chosen specifically because it let the decision threshold be tuned toward zero false negatives — in this domain, a missed CME is a worse outcome than a false alarm that a human reviews and dismisses. The ensemble reaches 85% overall accuracy while catching every labeled CME event.',
+        ],
+      },
     ],
-    featured: false,
+    outcome: {
+      heading: 'Outcome',
+      body: [
+        'A working detector deployed as a public Streamlit app, with zero missed events on its labeled test set — evidence that a carefully engineered small feature set can outperform throwing more data or a bigger model at a physics-constrained problem.',
+      ],
+    },
+    metrics: [
+      { label: 'Accuracy', value: '85%' },
+      { label: 'False negatives', value: '0' },
+      { label: 'Features engineered', value: '4 from 8' },
+      { label: 'Labeled event windows', value: '43' },
+    ],
   },
   {
     slug: 'speech-emotion-recognition',
     title: 'Speech Emotion Recognition App',
-    description: 'Deep learning speech emotion classifier using Wav2Vec2 embeddings achieving 89.1% accuracy, with interactive Streamlit app.',
-    longDescription: 'Built a deep learning speech emotion recognition system using Wav2Vec2 embeddings and handcrafted acoustic features. Trained on three benchmark datasets with data augmentation.',
+    description:
+      'A deep learning speech emotion classifier fusing Wav2Vec2 embeddings with handcrafted acoustic features, reaching 89.1% accuracy in an interactive Streamlit app.',
+    longDescription:
+      'Built a deep learning speech emotion recognition system using Wav2Vec2 embeddings and handcrafted acoustic features. Trained on three benchmark datasets with data augmentation, and shipped as an interactive inference app.',
     techStack: ['PyTorch', 'Wav2Vec2', 'Streamlit', 'HuggingFace', 'Audio Processing'],
     category: 'ml',
     githubUrl: 'https://github.com/Arnav020/Speech-Emotion-Recognition-App',
+    image: '/ser/SER.png',
     highlights: [
       '89.1% classification accuracy across emotion categories',
-      'Wav2Vec2 + handcrafted acoustic feature fusion',
-      'Interactive Streamlit inference app',
+      'Wav2Vec2 embeddings fused with handcrafted acoustic features',
+      'Trained on 3 benchmark speech datasets with data augmentation',
+      'Interactive Streamlit inference app for live audio classification',
     ],
-    featured: true,
-  },
-  {
-    slug: 'marketpulse-ai',
-    title: 'MarketPulse AI',
-    description: 'Reddit-based stock sentiment analysis on 37K+ posts using TF-IDF and ML models with Flask BUY/HOLD/SELL dashboard.',
-    longDescription: 'Built a sentiment analysis system analysing 37K+ Reddit posts from r/stocks, r/investing, r/wallstreetbets. Trained 5 ML models and deployed the best in a Flask dashboard.',
-    techStack: ['Python', 'Scikit-learn', 'Flask', 'TF-IDF', 'NLP', 'Reddit API'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/MarketPulse-AI',
-    highlights: [
-      '37K+ Reddit posts analysed across 3 subreddits',
-      'Compared 5 ML models: SVM, LR, RF, DT, Naive Bayes',
-      'Real-time BUY/HOLD/SELL signal dashboard',
+    timeframe: '2024',
+    problem: {
+      heading: 'The problem',
+      body: [
+        'Speech emotion recognition needs to capture both the fine-grained acoustic patterns a pretrained speech model learns and the explicit prosodic cues (pitch, energy, rhythm) that classical audio features encode directly — using only one or the other tends to underperform.',
+      ],
+    },
+    approach: {
+      heading: 'Approach',
+      body: [
+        'Fused Wav2Vec2 embeddings — a self-supervised speech representation — with handcrafted acoustic features into a single classifier, and trained across three benchmark emotion-speech datasets with data augmentation to improve generalization across speakers and recording conditions.',
+      ],
+    },
+    outcome: {
+      heading: 'Outcome',
+      body: [
+        'An 89.1% classification accuracy model shipped as an interactive Streamlit app, where a user can upload or record audio and see the emotion classification run live.',
+      ],
+    },
+    metrics: [
+      { label: 'Accuracy', value: '89.1%' },
+      { label: 'Benchmark datasets', value: '3' },
     ],
-    featured: false,
-  },
-  {
-    slug: 'leafylens',
-    title: 'LeafyLens — Crop Recommendation & Disease Detection',
-    description: 'Computer vision system for crop recommendation and plant disease detection using CNN-based image classification.',
-    longDescription: 'Built an end-to-end agricultural AI system combining soil/climate-based crop recommendation with CNN-powered plant disease detection from leaf images.',
-    techStack: ['Python', 'TensorFlow', 'OpenCV', 'CNNs', 'Flask'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/LeafyLens-Crop-Recommendation-and-Disease-Detection',
-    highlights: [
-      'CNN-based leaf disease classification',
-      'Multi-factor crop recommendation engine',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'aoi-ic-detection',
-    title: 'AOI IC Detection',
-    description: 'Automated Optical Inspection system for IC component defect detection using computer vision.',
-    longDescription: 'Developed an AOI pipeline for detecting defects in integrated circuit components using image processing and deep learning classification techniques.',
-    techStack: ['Python', 'OpenCV', 'TensorFlow', 'Computer Vision'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/AOI-IC-Detection',
-    highlights: [
-      'Automated defect classification pipeline',
-      'Optimised for PCB-level inspection',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'face-recognition-attendance',
-    title: 'Face Recognition Attendance',
-    description: 'Automated attendance system using real-time face recognition with OpenCV and deep feature matching.',
-    longDescription: 'Built a real-time face recognition attendance system using OpenCV and deep embeddings for identity verification and automated attendance logging.',
-    techStack: ['Python', 'OpenCV', 'Deep Learning', 'SQLite'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/Face-Recognition-Attendance',
-    highlights: [
-      'Real-time face detection and recognition',
-      'Automated attendance logging to database',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'find-it',
-    title: 'Find-It — Lost & Found Platform',
-    description: 'Full-stack campus lost-and-found system with JWT auth, role-based access for students and faculty, and image uploads.',
-    longDescription: 'Developed a full-stack campus lost-and-found system with role-based authentication using JWT-based secure login. Implemented RESTful APIs for reporting lost/found items, claim management, and image uploads.',
-    techStack: ['React', 'Node.js', 'Express', 'MySQL', 'JWT', 'Multer'],
-    category: 'fullstack',
-    githubUrl: 'https://github.com/Arnav020/Find-It',
-    highlights: [
-      'JWT-based role authentication for students and faculty',
-      'RESTful API for item reporting, claims, and image uploads',
-      'MySQL relational database with Multer file handling',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'handwritten-letter-recognition',
-    title: 'Handwritten Letter Recognition',
-    description: 'CNN-based handwritten character recognition system trained on benchmark letter datasets.',
-    longDescription: 'Built a convolutional neural network for recognising handwritten letters, trained on standard benchmark datasets with image augmentation.',
-    techStack: ['Python', 'TensorFlow', 'CNNs', 'NumPy'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/Handwritten-Letter-Recognition',
-    highlights: [
-      'CNN architecture optimised for character recognition',
-      'Data augmentation pipeline for improved generalisation',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'hiresmart-ai',
-    title: 'HireSmart AI',
-    description: 'AI-powered recruitment assistant for automated resume screening, candidate scoring, and interview question generation.',
-    longDescription: 'Built an AI recruitment tool that automates resume screening using NLP, scores candidates against job descriptions, and generates contextual interview questions.',
-    techStack: ['Python', 'NLP', 'LLMs', 'FastAPI', 'React'],
-    category: 'fullstack',
-    githubUrl: 'https://github.com/Arnav020/HireSmart-AI',
-    highlights: [
-      'Automated resume-to-JD matching and scoring',
-      'LLM-generated contextual interview questions',
-    ],
-    featured: false,
   },
   {
     slug: 'linear-clone',
-    title: 'Linear.app Clone',
+    title: 'Linear.app Clone — Issue Tracker',
     description: 'High-performance issue tracker replicating Linear.app with Kanban boards, command menu, and real-time Supabase sync.',
-    longDescription: 'Built a high-performance issue tracking platform replicating Linear.app with keyboard-first workflows, command menu navigation, and real-time collaboration using Supabase Realtime.',
+    longDescription: 'Built a high-fidelity project-management platform replicating Linear.app, with keyboard-first workflows, command palette navigation, and drag-and-drop Kanban boards supporting real-time multi-user collaboration.',
     techStack: ['Next.js 15', 'TypeScript', 'Supabase', 'Tailwind CSS', 'PostgreSQL'],
     category: 'fullstack',
     githubUrl: 'https://github.com/Arnav020/Linear-Clone',
+    image: '/linear-clone/linear_clone.png',
     highlights: [
       'Kanban drag-and-drop with optimistic UI updates',
-      'Real-time collaboration via Supabase Realtime',
+      'Real-time collaboration via Supabase Realtime + PostgreSQL for live state sync across clients',
       'Keyboard-first command menu navigation',
     ],
-    featured: true,
-  },
-  {
-    slug: 'ml-chatbot',
-    title: 'ML Chatbot',
-    description: 'Conversational chatbot built with transformer-based NLP models for intent classification and context-aware responses.',
-    longDescription: 'Developed a chatbot using transformer models for intent classification and dialogue management, with context tracking across conversation turns.',
-    techStack: ['Python', 'HuggingFace', 'Transformers', 'NLTK', 'Flask'],
-    category: 'ml',
-    githubUrl: 'https://github.com/Arnav020/ML-Chatbot',
-    highlights: [
-      'Transformer-based intent classification',
-      'Context-aware multi-turn conversation',
+    timeframe: '2025',
+    problem: {
+      heading: 'The problem',
+      body: [
+        'Project-management tools are a well-worn UI problem, but the details that make Linear specifically feel fast — instant keyboard navigation, drag state that never stutters, edits that appear to happen before the network round-trip finishes — are mostly invisible engineering, not visible features.',
+      ],
+    },
+    approach: {
+      heading: 'Approach',
+      body: [
+        'Built the core issue-tracking data model on Postgres via Supabase, with Supabase Realtime subscriptions syncing state live across every connected client, and layered a command-palette-first interaction model and drag-and-drop Kanban board on top.',
+      ],
+    },
+    decisions: [
+      {
+        heading: 'Optimistic UI as the default, not an afterthought',
+        body: [
+          'Every mutation — dragging a card, changing a status, editing a title — updates local state immediately and reconciles with the server response afterward, rather than waiting on a round-trip before showing the change. Under concurrent multi-user edits this cuts perceived update latency to near-zero, which is the difference between a tool that feels instant and one that feels like a web app.',
+        ],
+      },
     ],
-    featured: false,
-  },
-  {
-    slug: 'mlops-ci-workflow',
-    title: 'MLOps CI Workflow',
-    description: 'End-to-end MLOps pipeline with GitHub Actions CI/CD for automated model training, testing, and deployment.',
-    longDescription: 'Implemented a complete MLOps CI workflow using GitHub Actions for automated model training, evaluation, regression testing, and deployment gating.',
-    techStack: ['Python', 'GitHub Actions', 'CI/CD', 'MLflow', 'Docker'],
-    category: 'mlops',
-    githubUrl: 'https://github.com/Arnav020/MLOps-CI-Workflow',
-    highlights: [
-      'Automated training and evaluation on every push',
-      'Model regression gating before deployment',
+    outcome: {
+      heading: 'Outcome',
+      body: [
+        'A keyboard-first, real-time-synced issue tracker that behaves like a local-first app despite every state change being persisted and broadcast through Postgres.',
+      ],
+    },
+    metrics: [
+      { label: 'Perceived update latency', value: '~0' },
+      { label: 'Real-time sync', value: 'Supabase Realtime' },
     ],
-    featured: false,
-  },
-  {
-    slug: 'mlops-docker-workflow',
-    title: 'MLOps Docker Workflow',
-    description: 'Containerised ML model serving pipeline using Docker and Docker Compose for reproducible training and inference.',
-    longDescription: 'Built a fully containerised ML pipeline with Docker Compose orchestrating training, evaluation, and serving containers for reproducible end-to-end workflows.',
-    techStack: ['Docker', 'Docker Compose', 'Python', 'FastAPI', 'MLflow'],
-    category: 'mlops',
-    githubUrl: 'https://github.com/Arnav020/MLOps-Docker-Workflow',
-    highlights: [
-      'Multi-container orchestration with Docker Compose',
-      'Reproducible training and inference environments',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'mlops-experiments-mlflow',
-    title: 'MLOps Experiments with MLflow',
-    description: 'Experiment tracking and model registry setup using MLflow for systematic ML experiment management.',
-    longDescription: 'Set up MLflow tracking server with experiment logging, metric visualisation, model versioning, and registry for systematic comparison of ML experiments.',
-    techStack: ['Python', 'MLflow', 'Scikit-learn', 'Pandas'],
-    category: 'mlops',
-    githubUrl: 'https://github.com/Arnav020/MLOps-Experiments-with-MLFlow',
-    highlights: [
-      'Full MLflow tracking server setup',
-      'Model versioning and registry management',
-    ],
-    featured: false,
-  },
-  {
-    slug: 'mlops-pipeline-dvc-aws',
-    title: 'MLOps Pipeline with DVC & AWS',
-    description: 'Data versioning and cloud-synced ML pipeline using DVC with AWS S3 for large-scale dataset and model management.',
-    longDescription: 'Built a production-style ML pipeline with DVC for data versioning, pipeline reproducibility, and AWS S3 remote storage for datasets and model artifacts.',
-    techStack: ['DVC', 'AWS S3', 'Python', 'Scikit-learn', 'Git'],
-    category: 'mlops',
-    githubUrl: 'https://github.com/Arnav020/MLOps-Pipeline-Using-DVC-AWS',
-    highlights: [
-      'DVC pipeline for reproducible training stages',
-      'AWS S3 remote for dataset and artifact versioning',
-    ],
-    featured: false,
   },
   {
     slug: 'mlops-vehicle-insurance',
@@ -273,11 +273,27 @@ export const projects: Project[] = [
       'MongoDB data pipeline with schema validation',
       'AWS EC2 deployment with Docker containerisation',
     ],
-    featured: true,
+    timeframe: '2024',
+    problem: {
+      heading: 'The problem',
+      body: [
+        'Most ML coursework and side-projects stop at a trained model in a notebook. This project was scoped instead to cover what actually gets a model into production in an industry setting: validated data in, a deployed service out.',
+      ],
+    },
+    approach: {
+      heading: 'Approach',
+      body: [
+        'Built the full lifecycle in the vehicle-insurance domain — ingestion from MongoDB with schema validation, transformation, model training and evaluation tracked through MLflow and DVC, and deployment to AWS EC2 behind a FastAPI service, all containerised with Docker.',
+      ],
+    },
+    outcome: {
+      heading: 'Outcome',
+      body: [
+        'A reproducible, versioned pipeline that mirrors how an ML system actually ships in production — not just a model, but the ingestion, validation, and deployment scaffolding around it.',
+      ],
+    },
   },
 ]
-
-export const featuredProjects = projects.filter((p) => p.featured)
 
 export const projectsByCategory: Record<ProjectCategory, Project[]> = {
   all: projects,
