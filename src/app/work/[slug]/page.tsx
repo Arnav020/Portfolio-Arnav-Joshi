@@ -49,7 +49,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <Container className="py-14 md:py-20">
         {isCaseStudy ? (
           <div className="grid gap-12 lg:grid-cols-[1fr_280px]">
-            <div className="max-w-[var(--prose-width)] space-y-12">
+            <div className="min-w-0 max-w-[var(--prose-width)] space-y-12">
               {project.problem && <CaseStudySection section={project.problem} />}
               {Diagram && (
                 <DiagramFrame title={`${project.title} — architecture`}>
@@ -64,7 +64,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </div>
         ) : (
           <div className="grid gap-12 lg:grid-cols-[1fr_280px]">
-            <div className="max-w-[var(--prose-width)] space-y-6">
+            <div className="min-w-0 max-w-[var(--prose-width)] space-y-6">
               <p className="leading-relaxed text-foreground">{project.longDescription ?? project.description}</p>
               <ul className="space-y-2.5">
                 {project.highlights.map((h, i) => (
