@@ -1,5 +1,3 @@
-import { Project } from '@/types'
-
 interface GitHubRepo {
   name: string
   stargazers_count: number
