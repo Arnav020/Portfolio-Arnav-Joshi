@@ -4,7 +4,7 @@
 
 ### A résumé that opens like a code editor.
 
-[![Live](https://img.shields.io/badge/live-arnavjoshi.dev-007acc?style=for-the-badge)](https://arnavjoshi.dev)
+[![Live](https://img.shields.io/badge/live-arnavjoshi.tech-007acc?style=for-the-badge)](https://arnavjoshi.tech)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-149ECA?style=for-the-badge&logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
@@ -254,6 +254,6 @@ Deployed on **Vercel**; the whole app prerenders as static content.
 
 Designed and built by **Arnav Joshi**
 <br />
-[arnavjoshi.dev](https://arnavjoshi.dev) · [GitHub](https://github.com/Arnav020) · [LinkedIn](https://linkedin.com/in/arnav-joshi-038693291)
+[arnavjoshi.tech](https://arnavjoshi.tech) · [GitHub](https://github.com/Arnav020) · [LinkedIn](https://linkedin.com/in/arnav-joshi-038693291)
 
 </div>

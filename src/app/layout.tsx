@@ -15,7 +15,7 @@ const syne = Syne({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://arnavjoshi.dev'),
+  metadataBase: new URL('https://arnavjoshi.tech'),
   // Browser-tab title; the longer positioning line lives in openGraph below.
   title: 'Arnav Joshi | Portfolio',
   description:
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://arnavjoshi.dev',
+    url: 'https://arnavjoshi.tech',
     siteName: 'Arnav Joshi — Portfolio',
     title: 'Arnav Joshi — AI/ML Engineer & Full Stack Developer',
     description:
@@ -83,7 +83,7 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Person',
               name: 'Arnav Joshi',
-              url: 'https://arnavjoshi.dev',
+              url: 'https://arnavjoshi.tech',
               jobTitle: 'AI/ML Engineer & Full Stack Developer',
               sameAs: [
                 'https://github.com/Arnav020',
