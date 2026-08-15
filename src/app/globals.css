@@ -1,170 +1,417 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Tailwind v4 token bridge. Every colour utility resolves to a CSS variable,
+   so a theme switch is one attribute flip on <html> and zero React re-renders.
+   ───────────────────────────────────────────────────────────────────────── */
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-serif: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jetbrains), ui-monospace, monospace;
 
-  --color-background: var(--background);
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-titlebar: var(--titlebar);
   --color-surface: var(--surface);
-  --color-surface-hover: var(--surface-hover);
-  --color-surface-subtle: var(--surface-subtle);
-  --color-foreground: var(--foreground);
-  --color-foreground-strong: var(--foreground-strong);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-surface-hi: var(--surface-hi);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  --color-fg: var(--fg);
+  --color-fg-strong: var(--fg-strong);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+
   --color-accent: var(--accent);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
+  /* The surname treatment on home.tsx — its own slot so a theme can differ
+     from its accent (Nord and Gruvbox both use red here, not their accent). */
+  --color-name: var(--name);
+  --color-statusbar: var(--statusbar);
+  --color-statusbar-fg: var(--statusbar-fg);
 
-  --animate-fade-in: fadeIn 0.6s var(--ease-out) forwards;
-  --animate-rise-in: riseIn 0.8s var(--ease-out) forwards;
-  --animate-float: float 6s var(--ease-in-out) infinite;
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes riseIn {
-  0% { opacity: 0; transform: translateY(16px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-/* The machine's idle "floating" bob — applied only to the canvas/image
-   layer itself, never to its wrapper (which carries the scroll-driven
-   scale) and never to the grounding shadow (which stays fixed, so the
-   machine reads as hovering above it rather than the whole stage bobbing
-   as one block). prefers-reduced-motion neutralizes it via the global
-   animation-duration override below, same as every other animation here. */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-14px); }
+  --color-c-green: var(--c-green);
+  --color-c-blue: var(--c-blue);
+  --color-c-pink: var(--c-pink);
+  --color-c-yellow: var(--c-yellow);
+  --color-c-purple: var(--c-purple);
+  --color-c-orange: var(--c-orange);
+  --color-c-red: var(--c-red);
+  --color-c-comment: var(--c-comment);
 }
 
 @layer base {
   /*
-   * Single fixed theme — warm porcelain cream with a restrained burgundy
-   * signature accent. No dark mode: this is the whole identity, not a
-   * default that gets overridden. Accent is used sparingly by design (active
-   * nav, dots, CTA fills, underlines) — never as a large fill.
+   * Base shell: one dark editor palette shared by all six themes. A theme only
+   * overrides the accent trio, the comment/syntax hues, and a slight tint on
+   * the background family — so "Nord" and "Gruvbox" change the personality
+   * colour without any of them needing their own layout or contrast pass.
    */
-  :root {
-    --background: #f5f0e8;
-    --surface: #efe8dd;
-    --surface-hover: #e6dcca;
-    --surface-subtle: #fbf8f3;
-    --foreground: #3d322c;
-    --foreground-strong: #2b211d;
-    --muted-foreground: #746860;
-    --accent: #6d1f3a;
-    --border: #d8cec2;
-    --border-strong: #c2b39f;
+  /*
+   * VS Code Dark+ — the editor palette the whole shell is modelled on.
+   * `--accent` is the primary action colour (filled buttons + the status bar),
+   * `--name` is the surname treatment. Every other theme below overrides the
+   * same slots and nothing else.
+   */
+  :root,
+  [data-theme='arnav-dark'] {
+    --bg: #1e1e1e;
+    --panel: #252526;
+    --titlebar: #1a1a2e;
+    --surface: #2d2d2d;
+    --surface-hi: #333333;
+    --line: #3c3c3c;
+    --line-soft: #2d2d2d;
 
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --fg: #cccccc;
+    --fg-strong: #ffffff;
+    --dim: #777777;
+    --faint: #5f5f5f;
 
-    --content-width: 72rem;
-    --prose-width: 42rem;
+    --accent: #007acc;
+    --accent-2: #4fc1ff;
+    --accent-3: #4ec9b0;
+    /* Blue, not pink — the one deliberate departure from the reference dark. */
+    --name: #4fc1ff;
+    --statusbar: #007acc;
+    --statusbar-fg: #ffffff;
+
+    --c-green: #4ec9b0;
+    --c-blue: #4fc1ff;
+    --c-pink: #ff6fd8;
+    --c-yellow: #dcdcaa;
+    --c-purple: #c586c0;
+    --c-orange: #ce9178;
+    --c-red: #f44747;
+    --c-comment: #6a9955;
   }
 
-  * {
-    border-color: var(--border);
+  [data-theme='rose-pine'] {
+    --bg: #191724;
+    --panel: #1f1d2e;
+    --titlebar: #110f1a;
+    --surface: #26233a;
+    --surface-hi: #2a273f;
+    --line: #403d52;
+    --line-soft: #26233a;
+
+    --fg: #e0def4;
+    --fg-strong: #e0def4;
+    --dim: #6e6a86;
+    --faint: #575272;
+
+    --accent: #eb6f92;
+    --accent-2: #9ccfd8;
+    --accent-3: #31748f;
+    --name: #eb6f92;
+    --statusbar: #eb6f92;
+    --statusbar-fg: #191724;
+
+    --c-green: #31748f;
+    --c-blue: #9ccfd8;
+    --c-pink: #eb6f92;
+    --c-yellow: #f6c177;
+    --c-purple: #c4a7e7;
+    --c-orange: #ea9a97;
+    --c-red: #eb6f92;
+    --c-comment: #908caa;
   }
 
-  html {
-    scroll-behavior: smooth;
+  [data-theme='tokyo-night'] {
+    --bg: #1a1b26;
+    --panel: #16161e;
+    --titlebar: #13131c;
+    --surface: #1f2335;
+    --surface-hi: #24283b;
+    --line: #292e42;
+    --line-soft: #1f2335;
+
+    --fg: #a9b1d6;
+    --fg-strong: #c0caf5;
+    --dim: #565f89;
+    --faint: #454c6f;
+
+    --accent: #7aa2f7;
+    --accent-2: #7dcfff;
+    --accent-3: #9ece6a;
+    --name: #7dcfff;
+    --statusbar: #7aa2f7;
+    --statusbar-fg: #16161e;
+
+    --c-green: #9ece6a;
+    --c-blue: #7dcfff;
+    --c-pink: #f7768e;
+    --c-yellow: #e0af68;
+    --c-purple: #bb9af7;
+    --c-orange: #ff9e64;
+    --c-red: #f7768e;
+    --c-comment: #73daca;
+  }
+
+  [data-theme='catppuccin'] {
+    --bg: #1e1e2e;
+    --panel: #181825;
+    --titlebar: #11111b;
+    --surface: #313244;
+    --surface-hi: #45475a;
+    --line: #45475a;
+    --line-soft: #313244;
+
+    --fg: #cdd6f4;
+    --fg-strong: #cdd6f4;
+    --dim: #6c7086;
+    --faint: #585c70;
+
+    --accent: #cba6f7;
+    --accent-2: #89dceb;
+    --accent-3: #a6e3a1;
+    --name: #89dceb;
+    --statusbar: #cba6f7;
+    --statusbar-fg: #1e1e2e;
+
+    --c-green: #a6e3a1;
+    --c-blue: #89dceb;
+    --c-pink: #f38ba8;
+    --c-yellow: #f9e2af;
+    --c-purple: #cba6f7;
+    --c-orange: #fab387;
+    --c-red: #f38ba8;
+    --c-comment: #94e2d5;
+  }
+
+  [data-theme='nord'] {
+    --bg: #2e3440;
+    --panel: #3b4252;
+    --titlebar: #242932;
+    --surface: #434c5e;
+    --surface-hi: #4c566a;
+    --line: #434c5e;
+    --line-soft: #3b4252;
+
+    --fg: #d8dee9;
+    --fg-strong: #eceff4;
+    --dim: #616e88;
+    --faint: #4f5a70;
+
+    --accent: #5e81ac;
+    --accent-2: #88c0d0;
+    --accent-3: #a3be8c;
+    --name: #88c0d0;
+    --statusbar: #5e81ac;
+    --statusbar-fg: #eceff4;
+
+    --c-green: #a3be8c;
+    --c-blue: #88c0d0;
+    --c-pink: #bf616a;
+    --c-yellow: #ebcb8b;
+    --c-purple: #b48ead;
+    --c-orange: #d08770;
+    --c-red: #bf616a;
+    --c-comment: #8fbcbb;
+  }
+
+  [data-theme='gruvbox'] {
+    --bg: #282828;
+    --panel: #1d2021;
+    --titlebar: #1c1c1c;
+    --surface: #3c3836;
+    --surface-hi: #504945;
+    --line: #504945;
+    --line-soft: #3c3836;
+
+    --fg: #ebdbb2;
+    --fg-strong: #fbf1c7;
+    --dim: #928374;
+    --faint: #7c6f64;
+
+    --accent: #fabd2f;
+    --accent-2: #83a598;
+    --accent-3: #b8bb26;
+    --name: #83a598;
+    --statusbar: #fabd2f;
+    --statusbar-fg: #282828;
+
+    --c-green: #b8bb26;
+    --c-blue: #83a598;
+    --c-pink: #fb4934;
+    --c-yellow: #fabd2f;
+    --c-purple: #d3869b;
+    --c-orange: #fe8019;
+    --c-red: #fb4934;
+    --c-comment: #8ec07c;
+  }
+
+  html,
+  body {
+    height: 100%;
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-sans);
-    font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: var(--titlebar);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 14px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 300ms ease, color 300ms ease;
+    /* The IDE owns the viewport; every scrollable region scrolls internally. */
+    overflow: hidden;
   }
 
   ::selection {
-    background-color: var(--accent);
-    color: var(--background);
+    background-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: var(--fg-strong);
   }
 
-  .custom-scrollbar {
+  /* Focus rings follow the active theme rather than the UA default. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  /* Thin editor-style scrollbars, themed. */
+  .ide-scroll {
     scrollbar-width: thin;
-    scrollbar-color: var(--border-strong) transparent;
+    scrollbar-color: var(--line) transparent;
   }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+  .ide-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
   }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
+  .ide-scroll::-webkit-scrollbar-track {
     background: transparent;
   }
+  .ide-scroll::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+  .ide-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--faint);
+    background-clip: content-box;
+  }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--border-strong);
-    border-radius: 20px;
+  .ide-scroll-none {
+    scrollbar-width: none;
+  }
+  .ide-scroll-none::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* Diagram edges: a subtle marching-ants flow indicating data movement */
-@keyframes diagram-dash-flow {
-  to { stroke-dashoffset: -16; }
+/* ── File entrance motion ─────────────────────────────────────────────────
+   Opening a tab plays a top-to-bottom reveal. The editor's content wrapper is
+   keyed on the file id, so React remounts it on every tab switch and the
+   animation re-runs without any JS driving it.
+   `backwards` fill keeps each element hidden through its own delay, otherwise
+   the whole block would flash in first and then animate.               */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.diagram-edge-flow {
-  animation: diagram-dash-flow 1.6s linear infinite;
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* Focus ring */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 6px;
+.file-enter > * {
+  animation: rise-in 420ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+}
+.file-enter > *:nth-child(2) {
+  animation-delay: 55ms;
+}
+.file-enter > *:nth-child(3) {
+  animation-delay: 110ms;
+}
+.file-enter > *:nth-child(4) {
+  animation-delay: 165ms;
+}
+.file-enter > *:nth-child(5) {
+  animation-delay: 220ms;
+}
+.file-enter > *:nth-child(6) {
+  animation-delay: 275ms;
+}
+.file-enter > *:nth-child(7) {
+  animation-delay: 330ms;
+}
+.file-enter > *:nth-child(n + 8) {
+  animation-delay: 385ms;
 }
 
-/* Screen reader only */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+/* For mapped lists that set their own per-item delay inline. */
+.rise-item {
+  animation: rise-in 420ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 }
 
-.focus\:not-sr-only:focus {
-  position: fixed;
-  width: auto;
-  height: auto;
-  padding: inherit;
-  margin: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
+.pop-item {
+  animation: pop-in 300ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 }
 
-/*
- * Reduced motion: components that move things (transform-based reveals, the
- * hero canvas, diagram flow-lines) check useReducedMotion() in JS and skip
- * translate/scale entirely rather than just speeding it up. This global rule
- * is the safety net for anything that doesn't — instant instead of animated.
- */
+/* The blinking caret after the typed tagline on home.tsx. */
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.caret-blink {
+  animation: caret-blink 1s step-end infinite;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.overlay-in {
+  animation: overlay-in 120ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  html {
-    scroll-behavior: auto;
+    transition-duration: 0.001ms !important;
+    /* Delays must go too: a `backwards`-filled animation would otherwise hold
+       its hidden start frame for the full stagger before snapping in. */
+    animation-delay: 0ms !important;
   }
 }

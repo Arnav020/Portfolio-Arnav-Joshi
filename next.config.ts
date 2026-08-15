@@ -2,23 +2,6 @@ import type { NextConfig } from 'next'
 import withBundleAnalyzer from '@next/bundle-analyzer'
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'github.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
-      },
-    ],
-    formats: ['image/avif', 'image/webp'],
-  },
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
