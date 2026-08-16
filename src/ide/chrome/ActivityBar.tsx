@@ -1,9 +1,8 @@
 'use client'
 
-import { Download, Files, GitBranch, Search, Settings } from 'lucide-react'
+import { FileText, Files, GitBranch, Search, Settings } from 'lucide-react'
 import { useIde } from '../IdeProvider'
 import { defaultResume, links } from '@/content/profile'
-import { downloadFile } from './MenuBar'
 import { ScmPopover } from './ScmPopover'
 
 export function ActivityBar() {
@@ -32,11 +31,11 @@ export function ActivityBar() {
       run: () => dispatch({ type: 'SCM' }),
     },
     {
-      key: 'download',
-      Icon: Download,
-      label: `Download ${defaultResume.label}`,
-      active: false,
-      run: () => downloadFile(defaultResume.href, defaultResume.label),
+      key: 'resume',
+      Icon: FileText,
+      label: 'Résumé — preview and download',
+      active: state.overlay === 'resume',
+      run: () => dispatch({ type: 'RESUME', id: defaultResume.id }),
     },
   ]
 
@@ -53,6 +52,9 @@ export function ActivityBar() {
             onClick={run}
             title={label}
             aria-label={label}
+            data-tour={
+              key === 'resume' ? 'resume' : key === 'explorer' ? 'explorer-icon' : undefined
+            }
             aria-pressed={active}
             className={`group relative flex h-10 w-10 items-center justify-center rounded transition-colors ${
               active ? 'text-fg-strong' : 'text-faint hover:text-fg'

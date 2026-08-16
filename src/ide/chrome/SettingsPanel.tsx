@@ -1,10 +1,16 @@
 'use client'
 
-import { Check, Download, Maximize, Search, Terminal as TerminalIcon } from 'lucide-react'
+import {
+  Check,
+  Compass,
+  FileText,
+  Maximize,
+  Search,
+  Terminal as TerminalIcon,
+} from 'lucide-react'
 import { themes, useIde } from '../IdeProvider'
 import { SHORTCUTS } from '../useShortcuts'
 import { defaultResume } from '@/content/profile'
-import { downloadFile } from './MenuBar'
 
 export function SettingsPanel() {
   const { state, dispatch } = useIde()
@@ -27,9 +33,14 @@ export function SettingsPanel() {
       },
     },
     {
-      label: 'Download Resume',
-      Icon: Download,
-      run: () => downloadFile(defaultResume.href, defaultResume.label),
+      label: 'View Résumé',
+      Icon: FileText,
+      run: () => dispatch({ type: 'RESUME', id: defaultResume.id }),
+    },
+    {
+      label: 'Take the quick tour',
+      Icon: Compass,
+      run: () => dispatch({ type: 'TOUR', step: 0 }),
     },
     {
       label: 'Toggle Fullscreen',

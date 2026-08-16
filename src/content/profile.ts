@@ -8,7 +8,8 @@ export const profile = {
   firstName: 'Arnav',
   lastName: 'Joshi',
   handle: 'arnav020',
-  repoName: 'arnav020 : portfolio',
+  /** Shown in the title-bar search pill — the person, not the git handle. */
+  repoName: 'arnav joshi : portfolio',
   shellUser: 'arnav',
   title: 'AI/ML Engineer & Full Stack Developer',
   location: 'India',

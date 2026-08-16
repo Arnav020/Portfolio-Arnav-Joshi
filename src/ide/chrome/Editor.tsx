@@ -52,6 +52,7 @@ export function Editor() {
   return (
     <main
       id={EDITOR_ID}
+      data-tour="editor"
       // Keyed on the file id so switching tabs resets scroll position rather
       // than carrying one file's offset into the next.
       key={file.id}

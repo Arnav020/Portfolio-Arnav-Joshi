@@ -5,7 +5,6 @@ import { useIde } from '../IdeProvider'
 import { FileIcon } from '../FileIcon'
 import { files } from '../registry'
 import { profile, resumes } from '@/content/profile'
-import { downloadFile } from './MenuBar'
 
 export function Explorer() {
   const { state, dispatch } = useIde()
@@ -13,6 +12,7 @@ export function Explorer() {
   return (
     <aside
       aria-label="File explorer"
+      data-tour="files"
       // Below md the panel would eat the whole editor, so it floats over it
       // instead of taking a column — the activity-bar toggle still works.
       className="ide-scroll absolute inset-y-0 left-12 z-30 w-56 shrink-0 overflow-y-auto border-r border-line bg-panel shadow-2xl shadow-black/50 md:static md:z-auto md:shadow-none"
@@ -46,13 +46,13 @@ export function Explorer() {
           )
         })}
 
-        {/* PDFs can't open in a tab — clicking one downloads it, like a real editor. */}
+        {/* PDFs open in a preview overlay first — downloading is then a choice. */}
         {resumes.map((r) => (
           <li key={r.id}>
             <button
               type="button"
-              onClick={() => downloadFile(r.href, r.label)}
-              title={`Download ${r.label}`}
+              onClick={() => dispatch({ type: 'RESUME', id: r.id })}
+              title={`Preview ${r.label}`}
               className="flex w-full items-center gap-2 px-3 py-[5px] text-left text-[11px] text-dim transition-colors hover:bg-white/[0.04] hover:text-fg"
             >
               <FileIcon kind="pdf" className="h-3.5 w-3.5" />

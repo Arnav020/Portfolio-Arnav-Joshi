@@ -12,7 +12,9 @@ import { TerminalPanel } from './chrome/TerminalPanel'
 import { StatusBar } from './chrome/StatusBar'
 import { CommandPalette } from './chrome/CommandPalette'
 import { SettingsPanel } from './chrome/SettingsPanel'
+import { ResumeViewer } from './chrome/ResumeViewer'
 import { ThemeToast } from './chrome/ThemeToast'
+import { Tour } from './chrome/Tour'
 
 export function IdeShell() {
   const { state } = useIde()
@@ -41,7 +43,9 @@ export function IdeShell() {
 
       {state.overlay === 'palette' && <CommandPalette />}
       {state.overlay === 'settings' && <SettingsPanel />}
+      {state.overlay === 'resume' && <ResumeViewer />}
       <ThemeToast />
+      <Tour />
     </div>
   )
 }

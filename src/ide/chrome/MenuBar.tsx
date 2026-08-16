@@ -78,8 +78,8 @@ export function MenuBar() {
       ...resumes.map(
         (r): Item => ({
           kind: 'item',
-          label: `Download ${r.label.includes('SDE') ? 'Resume — SDE' : 'Resume — ML'}`,
-          run: () => downloadFile(r.href, r.label),
+          label: `Résumé — ${r.label.includes('SDE') ? 'SDE' : 'ML'}`,
+          run: () => dispatch({ type: 'RESUME', id: r.id }),
         })
       ),
     ],
@@ -126,6 +126,11 @@ export function MenuBar() {
       { kind: 'item', label: 'Show Help', run: () => runInTerminal('help') },
     ],
     Help: [
+      {
+        kind: 'item',
+        label: 'Take the quick tour',
+        run: () => dispatch({ type: 'TOUR', step: 0 }),
+      },
       { kind: 'item', label: 'About This Portfolio', icon: 'readme', run: () => open('readme') },
       {
         kind: 'item',
@@ -140,8 +145,8 @@ export function MenuBar() {
       },
       {
         kind: 'item',
-        label: 'Download Resume',
-        run: () => downloadFile(defaultResume.href, defaultResume.label),
+        label: 'View Résumé',
+        run: () => dispatch({ type: 'RESUME', id: defaultResume.id }),
       },
     ],
   }

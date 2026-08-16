@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { fileById, type FileId } from './registry'
 import { runCommand, WELCOME, type TerminalLine } from './shell'
+import { defaultResume } from '@/content/profile'
 
 export const themes = [
   { id: 'arnav-dark', name: 'Arnav Dark', emoji: '💙', dot: '#2f81f7' },
@@ -22,10 +23,11 @@ export const themes = [
 ] as const
 
 export type ThemeId = (typeof themes)[number]['id']
-export type Overlay = 'palette' | 'settings' | null
+export type Overlay = 'palette' | 'settings' | 'resume' | null
 export type PanelTab = 'terminal' | 'problems' | 'output'
 
 export const THEME_KEY = 'ide.theme'
+export const TOUR_KEY = 'ide.tour.seen'
 const TABS_KEY = 'ide.tabs'
 /** The tab the editor falls back to; it can never be closed into a blank pane. */
 const HOME_FILE: FileId = 'home'
@@ -44,6 +46,10 @@ interface State {
   terminalOpen: boolean
   panelTab: PanelTab
   theme: ThemeId
+  /** Which résumé the preview overlay is showing. */
+  resumeId: string
+  /** Walkthrough step index, or null when the tour isn't running. */
+  tourStep: number | null
   cwd: string
   lines: TerminalLine[]
   history: string[]
@@ -61,6 +67,8 @@ type Action =
   | { type: 'TERMINAL'; open?: boolean }
   | { type: 'PANEL_TAB'; tab: PanelTab }
   | { type: 'THEME'; theme: ThemeId }
+  | { type: 'RESUME'; id?: string }
+  | { type: 'TOUR'; step: number | null }
   | { type: 'RUN'; input: string }
   | { type: 'HYDRATE'; tabs: FileId[]; theme: ThemeId; explorerOpen: boolean }
 
@@ -75,6 +83,8 @@ const initialState: State = {
   terminalOpen: false,
   panelTab: 'terminal',
   theme: 'arnav-dark',
+  resumeId: defaultResume.id,
+  tourStep: null,
   cwd: '~',
   lines: WELCOME,
   history: [],
@@ -145,6 +155,17 @@ function reducer(state: State, action: Action): State {
 
     case 'THEME':
       return { ...state, theme: action.theme }
+
+    case 'RESUME':
+      return {
+        ...state,
+        overlay: 'resume',
+        resumeId: action.id ?? state.resumeId,
+        menu: null,
+      }
+
+    case 'TOUR':
+      return { ...state, tourStep: action.step, overlay: null, menu: null }
 
     case 'RUN': {
       const result = runCommand(action.input, state.cwd)
@@ -221,6 +242,15 @@ export function IdeProvider({ children }: { children: ReactNode }) {
       theme,
       explorerOpen: window.innerWidth >= 768,
     })
+
+    // First-time visitors get the walkthrough once, after the shell settles.
+    let seen = true
+    try {
+      seen = localStorage.getItem(TOUR_KEY) === '1'
+    } catch {}
+    if (seen) return
+    const id = setTimeout(() => dispatch({ type: 'TOUR', step: 0 }), 900)
+    return () => clearTimeout(id)
   }, [])
 
   useEffect(() => {
